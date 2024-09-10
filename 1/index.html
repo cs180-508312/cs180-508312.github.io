@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- THE TEMPLATE CODE FOR HTML IS GENERATED WITH CHATGPT, I WANTED COOL BOOTSTRAP WEBSITE BUT IT GENERATED BORING STUFF, UNLUCKY ! -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project 1 report</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .gallery img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+	<p>For the assignment we were given 3 grayscale images of B G and R channels, and had to combine them to get colored image. For my approach I took the first image as
+	stationary and alligned other two channels to it. I used euclidean distance as my metric,
+	so I took the sum of square differences between pixels of two images. I would cut off 15% of both sides from the image to account for the borders, then shift images from -18 to 17 and look at the value of the metric, then take the offset with smallest distance between images.
+	This worked well enough except for few images. For example emir and church did not allign well. This was because if you match on raw pixels you are not matching on brigtness - you are matching on different color channels.
+	In church image there is a lot of water with blue color, so red channel which does not represent it can't match well with other images. In emir image, the emir's clothing is colorful,
+	thus making it hard for R G and B channels to match using it.</p>
+	
+	<p>So to fix those images I created a new metric and instead of taking difference between raw pixels, I ran the image through Canny edge detection algorithm.
+	Now the difference was taken from edges and results aligned better. The results with this method are good on every picture, and only on 1 or 2 pictures they are worse than with the first metric(for example train, or three generations).</p>
+	<p>To increase the speed of my program I implemented image pyramid: image gets rescaled to be 2 times smaller at most 8 times, and then I search for best fit offset on that level,
+	the found location gets multiplied by 2 and is passed on to the next level, where the process is continued untill the top level. To increase the speed even further, 
+	the search region is decreased by 1 with each pyramid level. So I start searching from -18 to 17, then -17 to 16 on the next level, and so on. </p>
+    <div class="container mt-5">	
+	
+	
+        <h1 class="text-center mb-5">Generated images</h1>
+        <div class="row gallery">
+		    <div class="col-md-6 col-sm-12">
+                Images created using regular metric.
+            </div>
+            <div class="col-md-6 col-sm-12">
+                Images created using Canny edge detection.
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <img src="regular_church.jpg" alt="Image 1" class="img-fluid">
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <img src="edge_church.jpg" alt="Image 2" class="img-fluid">
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <img src="regular_emir.jpg" alt="Image 3" class="img-fluid">
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <img src="edge_emir.jpg" alt="Image 4" class="img-fluid">
+            </div>
+			            <div class="col-md-6 col-sm-12">
+                <img src="regular_harvesters.jpg" alt="Image 3" class="img-fluid">
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <img src="edge_harvesters.jpg" alt="Image 4" class="img-fluid">
+            </div>
+			            <div class="col-md-6 col-sm-12">
+                <img src="regular_icon.jpg" alt="Image 3" class="img-fluid">
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <img src="edge_icon.jpg" alt="Image 4" class="img-fluid">
+            </div>
+			            <div class="col-md-6 col-sm-12">
+                <img src="regular_lady.jpg" alt="Image 3" class="img-fluid">
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <img src="edge_lady.jpg" alt="Image 4" class="img-fluid">
+            </div>
+			            <div class="col-md-6 col-sm-12">
+                <img src="regular_melons.jpg" alt="Image 3" class="img-fluid">
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <img src="edge_melons.jpg" alt="Image 4" class="img-fluid">
+            </div>
+			            <div class="col-md-6 col-sm-12">
+                <img src="regular_train.jpg" alt="Image 3" class="img-fluid">
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <img src="edge_train.jpg" alt="Image 4" class="img-fluid">
+            </div>
+			<div class="col-md-6 col-sm-12">
+                <img src="regular_onion_church.jpg" alt="Image 3" class="img-fluid">
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <img src="edge_onion_church.jpg" alt="Image 4" class="img-fluid">
+            </div>
+
+			<div class="col-md-6 col-sm-12">
+                <img src="regular_self_portrait.jpg" alt="Image 3" class="img-fluid">
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <img src="edge_self_portrait.jpg" alt="Image 4" class="img-fluid">
+            </div>
+
+			<div class="col-md-6 col-sm-12">
+                <img src="regular_sculpture.jpg" alt="Image 3" class="img-fluid">
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <img src="edge_sculpture.jpg" alt="Image 4" class="img-fluid">
+            </div>
+			<div class="col-md-6 col-sm-12">
+                <img src="regular_three_generations.jpg" alt="Image 3" class="img-fluid">
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <img src="edge_three_generations.jpg" alt="Image 4" class="img-fluid">
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
