@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project 1 report</title>
+	<!-- STYLE BELOW IS GENERATED WITH CHATGPT and tweaked by me -->
+    <style>	
+	
+		 body {
+		  background-color: #DDDDDD;
+		  font-family: Arial, sans-serif;
+		  margin: 10%;
+		  padding: 0;
+		  text-align: justify;
+		  justify-content: center;
+		}
+
+		
+		
+		/* General styles for the gallery */
+		.gallery {
+		  display: flex;
+		  flex-wrap: wrap;
+		  justify-content: center;
+		  gap: 1%; /* Space between pictures */
+		  padding: 1%;
+		  background-color: #f4f4f4; /* Background of the gallery */
+		}
+
+		/* Style for individual picture frames */
+		.picture-frame {
+		  position: relative;
+		  width: 20%; /* Width of the frame */
+		  padding: 10px;
+		  background-color: #8AA; /* Background color of the frame */
+		  border: 3px solid #333; /* Border to mimic a frame */
+		  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for depth effect */
+		  transition: transform 0.3s, box-shadow 0.3s; /* Smooth hover effect */
+		}
+
+		.picture-frame img {
+		  width: 100%;
+		  height: auto;
+		  display: block;
+		  border: 1px solid #ddd; /* Inner border for a framed look */
+		  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow on the image */
+		}
+
+		.picture-frame:hover {
+		  transform: scale(1.5); /* Slight zoom on hover */
+		  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Deepen shadow on hover */
+		}
+
+		/* Optional caption below each image */
+		.picture-caption {
+		  text-align: center;
+		  margin-top: 10px;
+		  font-size: 16px;
+		  color: #333;
+		  font-style: italic;
+		}
+    </style>
+</head>
+
+<body>
+	<h1 align="center"> CS180 Project 2</h1>
+	<h2 align="center"> Shumay Artem</h2>
+	
+	<h3> Project tasks:</h3>
+	<p>  1 Detect edges with finite difference operator.  </p>
+	<p>  2 Image sharpening.  </p>
+	<p>  3 Combining two frequencies of different images.  </p>
+	<p>  4 Blending images.  </p>
+	
+	<h3> Part 1.1: Finite Difference Operator: </h3>
+	<p> I used the following matrices as my finite difference operator. dx = [[-1, 1], [0, 0]], dy = [[-1, 0], [1, 0]]. 
+	This matrices find the diffrence between two neighbouring pixels, so if the change in pixels is big, the gradient is big.
+	Second column/row are used as padding to keep dimensions consistent.
+		Magnitude of the gradient is the square root of sum of squares between two images convolved with finite difference operators. mag = SQRT((IM*dx)^2 + (IM*dy)^2)</p>
+		
+	<div class="gallery">
+	  <div class="picture-frame">
+		<img src="cman_dx.png">
+		<div class="picture-caption">dx(absolute values to see negative edges)</div>
+	  </div>
+	  <div class="picture-frame">
+		<img src="cman_dy.png">
+		<div class="picture-caption">dy(absolute values to see negative edges)</div>
+	  </div>
+	  <div class="picture-frame">
+		<img src="cman_mag.png">
+		<div class="picture-caption">Magnitude</div>
+	  </div>
+	  <div class="picture-frame">
+		<img src="cman_bin.png">
+		<div class="picture-caption">Binarized magnitude. Threshold=0.322</div>
+	  </div>
+	</div>
+	<br>
+	<h3> Part 1.2: Derivative of Gaussian (DoG) Filter </h3>
+	<p> To get better results we can run image through gaussian filter, this will smooth it and remove some of the noise. I used gaussian with size 13 and sigma = 2.</p>
+	
+	<div class="gallery">
+	  <div class="picture-frame">
+		<img src="cman_gaus_dx.png">
+		<div class="picture-caption">dx(absolute values to see negative edges)</div>
+	  </div>
+	  <div class="picture-frame">
+		<img src="cman_gaus_dy.png">
+		<div class="picture-caption">dy(absolute values to see negative edges)</div>
+	  </div>
+	  <div class="picture-frame">
+		<img src="cman_gaus_mag.png">
+	  <div class="picture-caption">Magnitude</div>
+	  </div>
+	  <div class="picture-frame">
+		<img src="cman_gaus_bin.png">
+	  <div class="picture-caption">Binarized magnitude. Threshold=0.0377</div>
+	  </div>
+	</div>
+	<p> As we can see we got an image with better defined edges. In the first example there were some random holes in the outline of the person, and using DoG filter fixed that.
+	As we can see on the magnitude picture, the noise is reduced drastically, allowing us to use higher threshold value.</p>
+	<p> We can convolve dX and dY operators with our gaus operator to convolve image with that single matrix instead of Gaussian and dX/dY separately. </p>
+		<div class="gallery">
+	  <div class="picture-frame" style="width:40%">
+		<img src="convo_dx.png">
+		<div class="picture-caption">Result of convolving dx with Gaussian. </div>
+	  </div>
+	  <div class="picture-frame" style="width:40%">
+		<img src="convo_dy.png">
+		<div class="picture-caption">Result of convolving dy with Gaussian.</div>
+	  </div>
+	</div>
+	<p> As we can see this produces same results. </p>
+	
+	<div class="gallery">
+	  <div class="picture-frame">
+		<img src="cman_gausone_dx.png">
+		<div class="picture-caption">dx(absolute values to see negative edges)</div>
+	  </div>
+	  <div class="picture-frame">
+		<img src="cman_gausone_dy.png">
+		<div class="picture-caption">dy(absolute values to see negative edges)</div>
+	  </div>
+	  <div class="picture-frame">
+		<img src="cman_gausone_mag.png">
+	  <div class="picture-caption">Magnitude</div>
+	  </div>
+	  <div class="picture-frame">
+		<img src="cman_gausone_bin.png">
+	  <div class="picture-caption">Binarized magnitude. Threshold=0.0377</div>
+	  </div>
+	</div>
+	
+	<br>
+	<br>
+	<br>
+	<h2 align=center> Part 2: playing with frequencies </h2>
+	
+	<h3> Part 2.1: Sharpening images <h3>
+	<p> To sharpen the image we can add some of its higher frequencies to the original image.
+	To find high frequencies of the image I ran image through Gaussian filter and subtracted the result from the original image. 
+	I then added the result of this subtraction to the original image to get "sharpened" image. Let K be the number of times I added higher frequencies to the original.</p>
+	
+	<div class="gallery">
+	  <div class="picture-frame" style="width:30%">
+		<img src="taj.jpg">
+		<div class="picture-caption">K = 0 (original image	)</div>
+	  </div>
+	  <div class="picture-frame" style="width:30%">
+		<img src="taj_sharp_1x.png">
+		<div class="picture-caption">K = 1</div>
+	  </div>
+	  <div class="picture-frame" style="width:30%">
+		<img src="taj_sharp_2x.png">
+	  <div class="picture-caption">K = 2</div>
+	  </div>
+	  <div class="picture-frame" style="width:30%">
+		<img src="taj_sharp_4x.png">
+	  <div class="picture-caption">K = 4</div>
+	  </div>
+	</div>
+	
+	<h4> Sharpened spoon: </h4>
+	<div class="gallery">
+	  <div class="picture-frame" style="width:30%">
+		<img src="spoon.jpg">
+		<div class="picture-caption">K = 0 (original image	)</div>
+	  </div>
+	  <div class="picture-frame" style="width:30%">
+		<img src="jelly_sharp_1x.jpg">
+		<div class="picture-caption">K = 1</div>
+	  </div>
+	  <div class="picture-frame" style="width:30%">
+		<img src="jelly_sharp_2x.jpg">
+	  <div class="picture-caption">K = 2</div>
+	  </div>
+	  <div class="picture-frame" style="width:30%">
+		<img src="jelly_sharp_4x.jpg">
+	  <div class="picture-caption">K = 4</div>
+	  </div>
+	</div>
+	
+	<p> I now blurred an image of the forest and then sharpened it to compare to original: </p>
+	<div class="gallery">
+	  <div class="picture-frame" style="width:40%">
+		<img src="forest.jpg">
+		<div class="picture-caption">Original</div>
+	  </div>
+	  <div class="picture-frame" style="width:40%">
+		<img src="forest_blurry.jpg">
+		<div class="picture-caption">Blurry</div>
+	  </div>
+	  </div>
+	</div>
+	<br>
+	
+	<div class="gallery">
+	  <div class="picture-frame">
+		<img src="forest_blurry.jpg">
+		<div class="picture-caption">K = 0 (blurried)</div>
+	  </div>
+	  <div class="picture-frame">
+		<img src="forest_sharp_1x.jpg">
+		<div class="picture-caption">K = 1</div>
+	  </div>
+	  <div class="picture-frame">
+		<img src="forest_sharp_2x.jpg">
+	  <div class="picture-caption">K = 2</div>
+	  </div>
+	  <div class="picture-frame">
+		<img src="forest_sharp_4x.jpg">
+	  <div class="picture-caption">K = 4</div>
+	  </div>
+	</div>
+	<p> Comparison of original and sharpened image: <p>
+	<div class="gallery">
+	  <div class="picture-frame" style="width:40%">
+		<img src="forest.jpg">
+		<div class="picture-caption">Original</div>
+	  </div>
+	  <div class="picture-frame" style="width:40%">
+		<img src="forest_sharp_2x.jpg">
+		<div class="picture-caption">2x sharpened</div>
+	  </div>
+	  </div>
+	<p> Since some information was lost after running Gaussian filter we cannot reconstruct image fully. However we can see that after sharpening the image looks more similar to the original than the blurry one. <p>
+
+	<h3> Part 2.2: Hybrid images </h3>
+	<p> We can combine low frequencies of one image with high frequencies of another to get image which looks like first image from afar, but second from up close <p>
+	<p> Derek and nutmeg: <p>
+	<div class="gallery">
+	  <div class="picture-frame" style="width:25%">
+		<img src="aligned_DerekPicture.jpg">
+		<div class="picture-caption">Derek</div>
+	  </div>
+	  <div class="picture-frame" style="width:25%">
+		<img src="aligned_nutmeg.jpg">
+		<div class="picture-caption">Nutmeg</div>
+	  </div>
+	  <div class="picture-frame" style="width:25%">
+		<img src="hybrid_image_derek_nut.png">
+		<div class="picture-caption">Hybrid image</div>
+	  </div>
+	 </div>
+	  	<p> Bells and whistles: I am combining images with color and I noticed that it works best if low frequency image is black and white and high frequency is colored. <p>
+		
+		
+	<p> Failure, I think the white background made it hard to see the the edges of the cat face, this is because I am using clamped add, as my high frequencies have black background and not a transparent one: </p>
+		
+	<div class="gallery">
+	  <div class="picture-frame" style="width:25%">
+		<img src="cat.jpg">
+		<div class="picture-caption">Cat</div>
+	  </div>
+	  <div class="picture-frame" style="width:25%">
+		<img src="dog.png">
+		<div class="picture-caption">Dog</div>
+	  </div>
+	  <div class="picture-frame" style="width:25%">
+		<img src="catdog.png">
+		<div class="picture-caption">Hybrid image</div>
+	  </div>
+	 </div>
+	 
+	 <p> Wolfman or smth idk: </p>
+		
+	<div class="gallery">
+	  <div class="picture-frame" style="width:25%">
+		<img src="man.png">
+		<div class="picture-caption">Man</div>
+	  </div>
+	  <div class="picture-frame" style="width:25%">
+		<img src="wolf.png">
+		<div class="picture-caption">Wolf</div>
+	  </div>
+	  <div class="picture-frame" style="width:25%">
+		<img src="manwolf.png">
+		<div class="picture-caption">Wolfman</div>
+	  </div>
+	 </div>
+	 
+	 <p> Fourier analysis </p>
+	<div class="gallery">
+	  <div class="picture-frame" style="width:20%">
+		<img src="man.png">
+		<div class="picture-caption">Man</div>
+	  </div>
+	  <div class="picture-frame" style="width:20%">
+		<img src="FFT_man.png">
+		<div class="picture-caption">Frequencies of man</div>
+	  </div>
+	  <div class="picture-frame" style="width:20%">
+		<img src="man_blurred.png">
+		<div class="picture-caption">Blurry man</div>
+	  </div>
+		<div class="picture-frame" style="width:20%">
+		<img src="FFT_man_blurry.png">
+		<div class="picture-caption">Frequencies of blurry man</div>
+	  </div>
+	  
+	  	  <div class="picture-frame" style="width:20%">
+		<img src="wolf.png">
+		<div class="picture-caption">Wolf</div>
+	  </div>
+	  <div class="picture-frame" style="width:20%">
+		<img src="FFT_wolf.png">
+		<div class="picture-caption">Frequencies of Wolf</div>
+	  </div>
+	  <div class="picture-frame" style="width:20%">
+		<img src="sharp.png">
+		<div class="picture-caption">Wolf outline(high frequencies)</div>
+	  </div>
+		<div class="picture-frame" style="width:20%">
+		<img src="FFT_sharp_wolf.png">
+		<div class="picture-caption">Frequencies of wolf outline</div>
+	  </div>
+	  
+	  	  <div class="picture-frame" style="width:20%">
+		<img src="manwolf.png">
+		<div class="picture-caption">Hybrid</div>
+	  </div>
+		<div class="picture-frame" style="width:20%">
+		<img src="FFT_result.png">
+		<div class="picture-caption">Frequencies of hybrid</div>
+	  </div>
+	  
+	 </div>
+	 
+	 <p> Pogrenade, an example where both colored images look good: </p>
+		
+	<div class="gallery">
+	  <div class="picture-frame" style="width:25%">
+		<img src="potato.jpg">
+		<div class="picture-caption">Potato</div>
+	  </div>
+	  <div class="picture-frame" style="width:25%">
+		<img src="grenade2.jpg">
+		<div class="picture-caption">Grenade</div>
+	  </div>
+	  <div class="picture-frame" style="width:25%">
+		<img src="pogrenade.png">
+		<div class="picture-caption">Pogrenade</div>
+	  </div>
+	 </div>
+	 
+	<h3> Part 2.3: Gaussian and Laplacian Stacks </h3>
+	<p> Gaussian stack is a list of images with Gaussian filter applied to them, each subsequent image has had filter applied 1 more time than the previous one. 
+	Laplacian stack takes 2 images from Gaussian stack and subtracts them, this extracts the high frequencies between those two images. <p>
+	
+	<p> Here are my results of creating Laplaccian and Gaussian stacks (Laplaccian images are normalized for viewability reasons), apple: </p>
+	<div class="gallery">
+	  <div class="picture-frame" style="width:10%">
+		<img src="high_pass_0_s5_apple.jpg">
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="high_pass_1_s5_apple.jpg">
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="high_pass_2_s5_apple.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="high_pass_3_s5_apple.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="high_pass_4_s5_apple.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="high_pass_5_s5_apple.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="high_pass_6_s5_apple.jpg">
+	  </div>
+	  
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="low_pass_0_s5_apple.jpg">
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="low_pass_1_s5_apple.jpg">
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="low_pass_2_s5_apple.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="low_pass_3_s5_apple.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="low_pass_4_s5_apple.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="low_pass_5_s5_apple.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="low_pass_6_s5_apple.jpg">
+	  </div>
+	 </div>
+	 	<p> Orange: </p>
+	 	<div class="gallery">
+	  <div class="picture-frame" style="width:10%">
+		<img src="high_pass_0_s5_orange.jpg">
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="high_pass_1_s5_orange.jpg">
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="high_pass_2_s5_orange.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="high_pass_3_s5_orange.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="high_pass_4_s5_orange.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="high_pass_5_s5_orange.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="high_pass_6_s5_orange.jpg">
+	  </div>
+	  
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="low_pass_0_s5_orange.jpg">
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="low_pass_1_s5_orange.jpg">
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="low_pass_2_s5_orange.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="low_pass_3_s5_orange.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="low_pass_4_s5_orange.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="low_pass_5_s5_orange.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="low_pass_6_s5_orange.jpg">
+	  </div>
+	 </div>
+	 
+	 	<h3> Part 2.4: Multiresolution Blending </h3>
+		<p> To get a smooth blend between two images we can blend their frequencies at each level of Laplaccian stack, using mask which has been blurred progressivelly more at each level. 
+		This way sharper details will have a smaller seam, while higher level details will blend over bigger distance. </p>
+		<p> Below are levels of mask, apple * mask, orange * (1-mask), apple * mask + orange * (1-mask) (*normalized for viewability considerations): </p>
+	
+	
+	<div class="gallery">
+		<div class="picture-frame" style="width:10%">
+		<img src="mask0.jpg">
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="mask1.jpg">
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="mask2.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="mask3.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="mask4.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="mask5.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="mask6.jpg">
+	  </div>
+		
+		
+		
+	  <div class="picture-frame" style="width:10%">
+		<img src="apple0.jpg">
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="apple1.jpg">
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="apple2.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="apple3.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="apple4.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="apple5.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="apple6.jpg">
+	  </div>
+	 
+	<div class="picture-frame" style="width:10%">
+		<img src="orange0.jpg">
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="orange1.jpg">
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="orange2.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="orange3.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="orange4.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="orange5.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="orange6.jpg">
+	  </div>
+	  
+	  
+	  <div class="picture-frame" style="width:10%">
+		<img src="summed0.jpg">
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="summed1.jpg">
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="summed2.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="summed3.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="summed4.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="summed5.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="summed6.jpg">
+	  </div>
+	</div>
+		
+	<h4> Result of summing resulting laplacian stack(iterative results): </h4>
+	<div class="gallery">
+	  <div class="picture-frame" style="width:40%">
+		<img src="ORAple.jpg">
+		<div class="picture-caption">Oraple!</div>
+	  </div>
+	 </div>
+	 
+	<h3> Guncat: </h3>
+		<div class="gallery">
+	  <div class="picture-frame" style="width:25%">
+		<img src="gun.jpg">
+		<div class="picture-caption">gun</div>
+	  </div>
+	  <div class="picture-frame" style="width:25%">
+		<img src="catmask2.jpg">
+		<div class="picture-caption">mask</div>
+	  </div>
+	  <div class="picture-frame" style="width:25%">
+		<img src="catclaw2.jpg">
+		<div class="picture-caption">cat</div>
+	  </div>
+	  	  <div class="picture-frame" style="width:50%">
+		<img src="catgun.jpg">
+		<div class="picture-caption">catgun</div>
+	  </div>
+	 </div>
+	 
+	 <h3> Curtle: </h3>
+		<div class="gallery">
+	  <div class="picture-frame" style="width:20%">
+		<img src="turtl2.jpg">
+		<div class="picture-caption">cat</div>
+	  </div>
+	  <div class="picture-frame" style="width:20%">
+		<img src="turtmask2.jpg">
+		<div class="picture-caption">mask</div>
+	  </div>
+	  <div class="picture-frame" style="width:20%">
+		<img src="cat_hang.jpg">
+		<div class="picture-caption">turtle</div>
+	  </div>
+	  	  <div class="picture-frame" style="width:20%">
+		<img src="curtle.jpg">
+		<div class="picture-caption">curtle</div>
+	  </div>
+	 </div>
+	 
+	 <p> Curtle stacks: </p>
+	 	<div class="gallery">
+		<div class="picture-frame" style="width:10%">
+		<img src="cturt_mask_0.jpg">
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="cturt_mask_1.jpg">
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="cturt_mask_2.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="cturt_mask_3.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="cturt_mask_4.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="cturt_mask_5.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="cturt_mask_6.jpg">
+	  </div>
+		
+		
+		
+	  <div class="picture-frame" style="width:10%">
+		<img src="c_0.jpg">
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="c_1.jpg">
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="c_2.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="c_3.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="c_4.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="c_5.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="c_6.jpg">
+	  </div>
+	 
+	<div class="picture-frame" style="width:10%">
+		<img src="t_0.jpg">
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="t_1.jpg">
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="t_2.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="t_3.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="t_4.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="t_5.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="t_6.jpg">
+	  </div>
+	  
+	  
+	  <div class="picture-frame" style="width:10%">
+		<img src="ct_0.jpg">
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="ct_1.jpg">
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="ct_2.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="ct_3.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="ct_4.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="ct_5.jpg">
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="ct_6.jpg">
+	  </div>
+	</div>
+	
+	<h3> Bells and whistles: </h3>
+	<p> Did all part 2 in color.
+		
+</body>
+
+</html>
