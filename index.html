@@ -1,44 +1,259 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-	<body style="background-color:magenta;">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Cs 180 projects</title>
-	
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CS180 PROJECTS</title>
+    <!-- STYLE MADE BY CHATGPT AND MODIFIED BY ME -->
+    <style>
+        /* General Reset */
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+			font-family: 'Comic Sans MS', cursive, sans-serif;
+		}
 
-  </head>
-  <body>
-	  <div class="alert alert-success" role="alert">
-	  <h4 align=center class="alert-heading">Cs 180 projects !!!!</h4>
-	  <p align=center>Artem Shumay's cs180 projects.</p>
-	  <hr>
-	  </div>
-	  
-	<div align=center class="alert alert-info" role="alert">
-	  Combining images <a href="./2/index.html" class="alert-link">project 2</a>.
-	</div>
-	
-	<div align=center class="alert alert-light" role="alert">
-	  Combining images <a href="./1/index.html" class="alert-link">project 1</a>.
-	</div>
-	
-		<div align=center class="alert alert-warning" role="alert">
-	  Combining images <a href="./1/index.html" class="alert-link">project 1</a>.
-	</div>
-	
-	<div align=center class="w3-panel w3-green w3-round-xxlarge">
-	  <h3>Combining images <a href="./1/index.html" class="alert-link">project 1</a>.!</h3>
-	  
-	</div>
+		/* Body Styles */
+		body {
+			background: linear-gradient(135deg, #ff00ff, #00ffff, #ffff00);
+			color: #fff;
+			padding: 50px; /* Adds space around the content */
+			min-height: 100vh; /* Ensures the body takes full screen height */
+			overflow-x: hidden; /* Prevents horizontal scroll */
+		}
 
-	
-			<div align=center class="alert alert-success" role="alert">
-	  Combining images <a href="./1/index.html" class="alert-link">project 1</a>.
-	</div>
+		/* Funky Button */
+		button {
+			background: radial-gradient(circle, #ff8a00, #e52e71);
+			border: 5px dotted #00ff00;
+			border-radius: 50%;
+			color: #fff;
+			font-size: 2rem;
+			padding: 20px 40px;
+			cursor: pointer;
+			position: relative;
+			transition: all 0.5s ease;
+		}
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-  </body>
+		button:hover {
+			transform: rotate(360deg) scale(1.5);
+			box-shadow: 0 0 15px #fff, 0 0 30px #ff00ff, 0 0 45px #00ff00;
+		}
+
+		/* Funky Header */
+		h1 {
+			font-size: 6rem;
+			color: #00ff00;
+			text-shadow: 3px 3px #ff00ff, -3px -3px #00ffff;
+			animation: neon-flicker 2s infinite alternate;
+			letter-spacing: 10px;
+			margin-bottom: 20px; /* Space between header and next content */
+			text-align: center; /* Center the text */
+		}
+
+		/* Neon Flicker Animation */
+		@keyframes neon-flicker {
+			0%, 100% {
+				opacity: 1;
+				filter: brightness(2);
+			}
+			50% {
+				opacity: 0.6;
+				filter: brightness(3);
+			}
+		}
+
+		/* Funky Footer */
+		footer {
+			position: relative; /* Allow footer to stay at the bottom of content */
+			width: 100%;
+			text-align: center;
+			background: linear-gradient(to right, #ff0000, #00ff00, #0000ff);
+			color: #fff;
+			font-size: 1.5rem;
+			padding: 10px;
+			box-shadow: 0 0 10px #000;
+			margin-top: 50px; /* Adds space between content and footer */
+		}
+
+		/* Funky Links */
+		a {
+			color: #fff;
+			text-decoration: none;
+			padding: 5px 15px;
+			background: linear-gradient(45deg, #ff00ff, #ffff00);
+			border-radius: 20px;
+			transition: all 0.4s ease;
+		}
+
+		a:hover {
+			background: linear-gradient(45deg, #ffff00, #ff00ff);
+			transform: scale(1.2);
+			box-shadow: 0 0 10px #fff, 0 0 20px #ff00ff;
+		}
+
+		/* Funky Spinning Element */
+		.spinning {
+			display: block;
+			margin: 30px auto;
+			font-size: 10rem;
+			color: #ff00ff;
+			text-shadow: 5px 5px 20px #00ff00;
+			animation: spin 10s linear infinite;
+		}
+
+		@keyframes spin {
+			0% {
+				transform: rotate(0deg);
+			}
+			100% {
+				transform: rotate(360deg);
+			}
+		}
+
+		/* Funky Paragraph */
+		p {
+			font-size: 1.5rem;
+			line-height: 2;
+			text-align: center;
+			color: #ff00ff;
+			background-color: rgba(255, 255, 255, 0.2);
+			border: 2px dashed #00ff00;
+			padding: 20px;
+			margin-bottom: 20px; /* Adds space between paragraphs */
+			box-shadow: 0 0 10px #000;
+			transition: transform 0.5s ease;
+		}
+
+		p:hover {
+			transform: skew(15deg);
+		}
+
+		/* Glitch Effect */
+		.glitch {
+			font-size: 4rem;
+			position: relative;
+			color: #ff00ff;
+			animation: glitch 1s infinite;
+			margin-bottom: 30px; /* Adds space between glitch text and next element */
+		}
+
+		.glitch:before,
+		.glitch:after {
+			position: absolute;
+			left: 0;
+			top: 0;
+		}
+		
+		.project1:before,
+		.project1:after {
+			content: 'COMBINING IMAGES AAAAAAAAAAAAAAAAAa!';
+		}
+		
+		.project2:before,
+		.project2:after {
+			content: 'FUN WITH FREQUENCIES AAAAAAAAAAAAAAAAA!';
+		}
+
+		.glitch:before {
+			color: red;
+			z-index: -1;
+			clip: rect(0, 900px, 0, 0);
+			animation: glitchTop 2s infinite;
+		}
+
+		.glitch:after {
+			color: blue;
+			z-index: -2;
+			clip: rect(0, 0, 0, 900px);
+			animation: glitchBottom 3s infinite;
+		}
+
+		@keyframes glitch {
+			0% {
+				transform: skew(2deg);
+			}
+			20% {
+				transform: skew(-2deg);
+			}
+			40% {
+				transform: skew(2deg);
+			}
+			60% {
+				transform: skew(-2deg);
+			}
+			80% {
+				transform: skew(2deg);
+			}
+			100% {
+				transform: skew(0deg);
+			}
+		}
+
+		@keyframes glitchTop {
+			0% {
+				clip: rect(0, 900px, 0, 0);
+			}
+			20% {
+				clip: rect(30px, 900px, 90px, 0);
+			}
+			40% {
+				clip: rect(60px, 900px, 30px, 0);
+			}
+			60% {
+				clip: rect(90px, 900px, 60px, 0);
+			}
+			80% {
+				clip: rect(30px, 900px, 90px, 0);
+			}
+			100% {
+				clip: rect(0, 900px, 0, 0);
+			}
+		}
+
+		@keyframes glitchBottom {
+			0% {
+				clip: rect(0, 0, 0, 900px);
+			}
+			20% {
+				clip: rect(60px, 0, 90px, 900px);
+			}
+			40% {
+				clip: rect(30px, 0, 60px, 900px);
+			}
+			60% {
+				clip: rect(90px, 0, 30px, 900px);
+			}
+			80% {
+				clip: rect(60px, 0, 90px, 900px);
+			}
+			100% {
+				clip: rect(0, 0, 0, 900px);
+			}
+		}
+
+    </style>
+</head>
+<body>
+
+    <!-- Funky Header -->
+    <h1>Artem Shumay's cs180 projects</h1>
+	<p> List of projects </p>
+    <!-- Spinning Text -->
+    <div class="spinning">WOOOAAAH</div>
+
+    <!-- Funky Paragraph -->
+    <a href="./1/index.html"><div class="glitch project1"><button><h1>Project 1</h1></button></div></a>
+	
+	<a href="./2/index.html"><div class="glitch project2"><button><h1>Project 2</h1></button></div></a>
+
+	<div class="spinning">📷📷📷</div>
+	
+    <!-- Funky Footer -->
+    <footer>
+        Made with 💖 <3 ε> !!!
+    </footer>
+
+</body>
 </html>
