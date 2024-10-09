@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project 3 report</title>
+	<!-- STYLE BELOW IS GENERATED WITH CHATGPT and tweaked by me -->
+    <style>	
+	
+		 body {
+		  background-color: #DDDDDD;
+		  font-family: Arial, sans-serif;
+		  margin: 10%;
+		  padding: 0;
+		  text-align: justify;
+		  justify-content: center;
+		}
+
+		
+		
+		/* General styles for the gallery */
+		.gallery {
+		  display: flex;
+		  flex-wrap: wrap;
+		  justify-content: center;
+		  gap: 1%; /* Space between pictures */
+		  padding: 1%;
+		  background-color: #f4f4f4; /* Background of the gallery */
+		}
+
+		/* Style for individual picture frames */
+		.picture-frame {
+		  position: relative;
+		  width: 20%; /* Width of the frame */
+		  padding: 10px;
+		  background-color: #8AA; /* Background color of the frame */
+		  border: 3px solid #333; /* Border to mimic a frame */
+		  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for depth effect */
+		  transition: transform 0.3s, box-shadow 0.3s; /* Smooth hover effect */
+		}
+
+		.picture-frame img {
+		  width: 100%;
+		  height: auto;
+		  display: block;
+		  border: 1px solid #ddd; /* Inner border for a framed look */
+		  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow on the image */
+		}
+
+		.picture-frame:hover {
+		  transform: scale(1.5); /* Slight zoom on hover */
+		  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Deepen shadow on hover */
+		}
+
+		/* Optional caption below each image */
+		.picture-caption {
+		  text-align: center;
+		  margin-top: 10px;
+		  font-size: 16px;
+		  color: #333;
+		  font-style: italic;
+		}
+    </style>
+</head>
+
+<body>
+	<h1 align="center"> CS180 Project 3</h1>
+	<h2 align="center"> Artem Shumay</h2>
+	
+	<h3> Project tasks:</h3>
+	<p>  1 Define correspondences.  </p>
+	<p>  2 Compute mid way face between two people.  </p>
+	<p>  3 Morph one face onto another.  </p>
+	<p>  4 Find average face of a population.  </p>
+	<p>  5 Create face caricatures.  </p>
+	<p>  6 Change certain feature of a face(gender, ethnicity).  </p>
+	
+	<h3> Part 1: Defining correspondences: </h3>
+	<p> I used the provided website to mark correspondence points of notable features on faces. I then averaged the points of two faces and ran Delaunay
+	triangulation on that to segment image into triangles. Here are my results: </p>
+		
+	<div class="gallery">
+	  <div class="picture-frame" style="width:40%">
+		<img src="artem_tris.png">
+		<div class="picture-caption">My features</div>
+	  </div>
+	  <div class="picture-frame" style="width:40%">
+		<img src="martin_tris.png">
+		<div class="picture-caption">George's features</div>
+	  </div>
+	</div>
+	<br>
+	<h3> Part 2: Midway face </h3>
+	<p> To go from pixels on original image to pixels on the final image we need to find an affine transformation.
+		An affine transformation is defined as follows: </p>
+	<div align="center"><image src="transform.png"></div>
+	<p> It can be solved with 3 points. So we can find a solution per triangle created from correspondence points. To morph an image:
+		create a new image with the size of old image and call it our canvas, now per triangle in correspondence set find a corresponding triangle
+		on the canvas by doing p'=fac*p1 + (1-fac)*p2, where p1 and p2 are points on triangle from image 1 and 2 and fac is morph factor, 1/2 for midway face.
+		After calculating the new points, find a transformation between this new triangle and corresponding triangles from images, for pixels bounded
+		by triangle on the canvas apply transforms to go to the original image spaces and grab the value multiplied by dissolve_frac or 1-dissolve_frac, 
+		1/2 for midway face. If upon conversion from canvas space to image space pixels do not land directly on the pixels, I interpolate between them to get 
+		smooth results. <p>
+	
+	<div class="gallery">
+	  <div class="picture-frame">
+		<img src="artem2.jpg">
+		<div class="picture-caption">Me</div>
+	  </div>
+	  <div class="picture-frame">
+		<img src="george_small.jpg">
+		<div class="picture-caption">George</div>
+	  </div>
+	  <div class="picture-frame">
+		<img src="halfpoint.png">
+	  <div class="picture-caption">Midway face</div>
+	  </div>
+	</div>
+	
+	<br>
+	<br>
+	
+	<h3> Part 2.1: Morphing </h3>
+	<p> Instead of calculating midway face with warp factor of 1/2 and dissolve factor of 1/2 we can change those factors and get a weighted average.
+		Now we can let those factors go from 0 to 1 over time to get transformation from me to george:</p>
+	
+	<div class="gallery">
+	  <div class="picture-frame" style="width:40%">
+		<img src="warp.gif">
+		<div class="picture-caption">Fast morph gif</div>
+	  </div>
+	  <div class="picture-frame" style="width:40%">
+		<img src="warp_slow.gif">
+		<div class="picture-caption">Slow morph gif</div>
+	  </div>
+	</div>
+	
+	<h2 align=center> Part 4: Population's mean face: </h2>
+	
+	<p> To calculate the mean of the population, I averaged correspondence points of all people in the set and then warped original faces to
+		the average points averaged(morphed) them together, I got the following result:</p>
+	<div class="gallery">
+	  <div class="picture-frame" style="width:45%">
+		<img src="average_face.png">
+		<div class="picture-caption">Average face of Danes</div>
+	  </div>
+	</div>
+
+		
+	<p> First two faces originals and warped to average face shape: </p>
+		
+	<div class="gallery">
+	  <div class="picture-frame" style="width:20%">
+		<img src="male1.bmp">
+		<div class="picture-caption">Man 1 original.</div>
+	  </div>
+	  <div class="picture-frame" style="width:20%">
+		<img src="male1_on_average.png">
+		<div class="picture-caption">Man 1 warped to avg shape</div>
+	  </div>
+	  <div class="picture-frame" style="width:20%">
+		<img src="male2.bmp">
+		<div class="picture-caption">Man 2</div>
+	  </div>
+	 <div class="picture-frame" style="width:20%">
+		<img src="male2_on_average.png">
+		<div class="picture-caption">Man 2 warped</div>
+	  </div>
+	 </div>
+	 
+	 <p> Me warped to average and average warped to me: </p>
+	<div class="gallery">
+	  <div class="picture-frame" style="width:27%">
+		<img src="artem2_padded.jpg">
+		<div class="picture-caption">Me original</div>
+	  </div>
+	  <div class="picture-frame" style="width:27%">
+		<img src="artem_on_avg.png">
+		<div class="picture-caption">Me to average</div>
+	  </div>
+	  <div class="picture-frame" style="width:27%">
+		<img src="avg_on_artem.png">
+		<div class="picture-caption">Average to me</div>
+	  </div>
+	 </div>
+	 
+	 <p> Caricatures: </p>
+	<div class="gallery">
+	  <div class="picture-frame" style="width:25%">
+		<img src="artem2_padded.jpg">
+		<div class="picture-caption">Me original</div>
+	  </div>
+	  <div class="picture-frame" style="width:25%">
+		<img src="caricature_07.png">
+		<div class="picture-caption">Caricature with factor 0.7</div>
+	  </div>
+	  <div class="picture-frame" style="width:25%">
+		<img src="caricature_12.png">
+		<div class="picture-caption">Caricature with factor 1.2</div>
+	  </div>
+	  <div class="picture-frame" style="width:25%">
+		<img src="caricature_17.png">
+		<div class="picture-caption">Caricature with factor 1.7</div>
+	  </div>
+	  <div class="picture-frame" style="width:25%">
+		<img src="caricature_19.png">
+		<div class="picture-caption">Caricature with factor 1.9</div>
+	  </div>
+	 </div>
+	 <p> An interesting observation is that I start smiling more with higher factor, this is because the average picture smiles, and I do not,
+		so the difference gets added over and over again adding a smile. Another noticable difference is that my eyes start looking more outwards.</p>
+	 
+	 
+	<h3> Bells and whistles: Ethnicity and Gender change. </h3>
+	<p> To change the characteristics I used two approaches. First one, I took the differences in shape between average male ukranian person
+	and average female ukranian person. I then subtracted that difference to me to get the new shape, the shape itself was not enough, so I also
+	subtracted average male pixels and added average female pixels to me to get greater effect:
+	<div class="gallery">
+	  <div class="picture-frame" style="width:25%">
+		<img src="average_ua_man.png">
+		<div class="picture-caption">Average ukranian man</div>
+	  </div>
+	  <div class="picture-frame" style="width:25%">
+		<img src="average_ua_woman.png">
+		<div class="picture-caption">Average ukranian woman</div>
+	  </div>
+	  <div class="picture-frame" style="width:25%">
+		<img src="artem_woman.png">
+		<div class="picture-caption">Me</div>
+	  </div>
+	  
+		<div class="picture-frame" style="width:25%">
+			<img src="artem_woman_only_shape.png">
+			<div class="picture-caption">Me with just the shape difference applied</div>
+		</div>
+
+		  <div class="picture-frame" style="width:25%">
+			<img src="artem_only_woman_0703.png">
+			<div class="picture-caption">Shape + pixels of women</div>
+		</div>
+
+		<div class="picture-frame" style="width:25%">
+			<img src="artem_woman_07.png">
+			<div class="picture-caption">Shape + pixels of women - pixels of men</div>
+		</div>
+	 </div>
+	<p> I think it worked relatively well. Although the original average images do look similar, in the final picture you can definetely see
+		that my eyes got bigger and had some eyeliner added to them. </p>
+	
+	<p>The other method I used is to just blend my face with the average face. 
+	I used warp factor of 0.8 and cross-dissolve factor of 0.25. Here are the results: </p>
+	<div class="gallery">
+	  <div class="picture-frame" style="width:25%">
+		<img src="artemKorean.jpg">
+		<div class="picture-caption">Me</div>
+	  </div>
+	  <div class="picture-frame" style="width:25%">
+		<img src="average_korean.jpg">
+		<div class="picture-caption">Average Korean face</div>
+	  </div>
+	  <div class="picture-frame" style="width:25%">
+		<img src="artem_more_korean_08_25.jpg">
+		<div class="picture-caption">Korean me</div>
+	  </div>
+	 </div>
+	 <p> The results are not the best, but I have tried it sevreal times with different alignments and different blend factors,
+		and this is the usual result I got, my face got wider. You do see the differences and it does what it is supposed to do, I think
+		a better effect could be achieved with manual tweaking further.</p>
+		
+</body>
+
+</html>
