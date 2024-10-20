@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project 4A report</title>
+	<!-- STYLE BELOW IS GENERATED WITH CHATGPT and tweaked by me -->
+    <style>	
+	
+		 body {
+		  background-color: #DDDDDD;
+		  font-family: Arial, sans-serif;
+		  margin: 10%;
+		  padding: 0;
+		  text-align: justify;
+		  justify-content: center;
+		}
+
+		
+		
+		/* General styles for the gallery */
+		.gallery {
+		  display: flex;
+		  flex-wrap: wrap;
+		  justify-content: center;
+		  gap: 1%; /* Space between pictures */
+		  padding: 1%;
+		  background-color: #f4f4f4; /* Background of the gallery */
+		}
+
+		/* Style for individual picture frames */
+		.picture-frame {
+		  position: relative;
+		  width: 20%; /* Width of the frame */
+		  padding: 10px;
+		  background-color: #8AA; /* Background color of the frame */
+		  border: 3px solid #333; /* Border to mimic a frame */
+		  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for depth effect */
+		  transition: transform 0.3s, box-shadow 0.3s; /* Smooth hover effect */
+		}
+
+		.picture-frame img {
+		  width: 100%;
+		  height: auto;
+		  display: block;
+		  border: 1px solid #ddd; /* Inner border for a framed look */
+		  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow on the image */
+		}
+
+		.picture-frame:hover {
+		  transform: scale(1.5); /* Slight zoom on hover */
+		  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Deepen shadow on hover */
+		}
+
+		/* Optional caption below each image */
+		.picture-caption {
+		  text-align: center;
+		  margin-top: 10px;
+		  font-size: 16px;
+		  color: #333;
+		  font-style: italic;
+		}
+    </style>
+</head>
+
+<body>
+	<h1 align="center"> CS180 Project 4A</h1>
+	<h2 align="center"> Artem Shumay</h2>
+	
+	<h3> Project tasks:</h3>
+	<p>  1 Shoot the pictures.  </p>
+	<p>  2 Recover homographies.  </p>
+	<p>  3 Rectify images.  </p>
+	<p>  4 Blend images into a mosaic.  </p>
+	
+	<h3> Part 1: Shooting the images. </h3>
+	<p> For images to align well they need to share a common center. This means not moving the camera while taking the images and only rotating it. 
+		This is exactly what I had done, I locked exposure, put two fingers around my phone camera to form a rotation axis, rotated the phone and snapped a few pictures. </p>
+	<h3> Part 2: Recovering homographies </h3>
+	<p> First I found correspondences with given correspondence tool. I then used the following formula to compute the homography: </p>
+	<div align="center"><image src="transform.png" width="50%" height="50%" 	></div>
+	<p> Homography is 3x3 matrix of the following form: [[a b c] [d e f] [g h 1]]. We need at least 4 points to find the homography, 
+		but by using least squares to solve the above equation we can have any number of correspondaces we want, 
+		the more correspondaces the less the error from inexact points. <p>
+
+	<h3> Part 3: Morphing and rectifying images </h3>
+	<p> I used the same approach as in project 3 to map the pixels. First I find the boundary points of the image I want to morph by applying 
+	homographic transform to 4 corners of original image. I then find points bounded by that shape, and apply inverse homographic transform to get corresponding
+	points on original image, I interpolate between those points to get the correct values on final image.
+	 Now we can take a photo of an object with known shape, and morph it into that shape to make it face us. However in the "test" image the boundaries of rectified image got blown up, so I cropped it a little bit. </p>
+	
+	<div class="gallery">
+	  <div class="picture-frame" style="width:40%">
+		<img src="test.jpg">
+		<div class="picture-caption">Original test</div>
+	  </div>
+	  <div class="picture-frame" style="width:40%">
+		<img src="test_rectified.jpg">
+		<div class="picture-caption">Rectified test</div>
+	  </div>
+	  <div class="picture-frame" style="width:40%">
+		<img src="packet.jpg">
+		<div class="picture-caption">Original packet</div>
+	  </div>
+	  <div class="picture-frame" style="width:40%">
+		<img src="packet_rectified.jpg">
+		<div class="picture-caption">Rectified packet</div>
+	  </div>
+	</div>
+	
+	<h2 align=center> Part 4: Blending images into mosaic. </h2>
+	
+	<p> To morph two images together I find the transform between them, leave one unchanged and morph the other onto the first one. 
+		We can then apply the transform to morphed image correspondence points to get new correct points and continue blending next images. 
+		Since the process is recursive my implementation supports unlimited amount of images as long as you build the hierarchy. This approach 
+		is alright, but there is a visible seam between to images.
+		So to get rid of the seam I used multiresolution blending with 2 levels from
+		project2. That is good, but we need to find a good mask to use, intersection mask wont do because some of the black pixels will be blended in.
+		So as my mask I used the following: eroded intersection(outside pixel layers removed) summed with image1 mask - intersection, diluted a little bit.
+		This way the resulting mask pastes image1 and then blends at the end of it. </p>
+	
+	<p> If you look closely below you will find a seam, it is because I did not have a tripod and rotating images by hand produced some offset in camera position.
+		As the shots are pretty close that difference can be seen.</p>
+	<div class="gallery">
+	  <div class="picture-frame" style="width:20%">
+		<img src="r1.jpg">
+		<div class="picture-caption">Image 1.</div>
+	  </div>
+	  <div class="picture-frame" style="width:20%">
+		<img src="r2.jpg">
+		<div class="picture-caption">Image2</div>
+	  </div>
+	  <div class="picture-frame" style="width:20%">
+		<img src="r3.jpg">
+		<div class="picture-caption">Image 3</div>
+	  </div>
+		<div class="picture-frame" style="width:20%">
+		<img src="r4.jpg">
+		<div class="picture-caption">Image 4</div>
+	  </div>
+	 <div class="picture-frame" style="width:70%">
+		<img src="r1234.jpg">
+		<div class="picture-caption">Image mosaic with second image as root(anchor, unmorphed)</div>
+	  </div>
+	 </div>
+	 
+	<p> Cubic interpolation would have made images look better, but I'm a little bit on a time crunch. 
+	Below images were generated with small amount of correspondence points, which is why they are not the best quality, but still are pretty good. 
+	I think I forgot to lock the exposure on images below, and my blend is a little bit on the sharper edge, so you can see changes in camera settings in the sky.
+		It is not as noticable in areas with a lot of details, ground.</p>
+	<div class="gallery">
+	  <div class="picture-frame" style="width:20%">
+		<img src="s1.jpg">
+		<div class="picture-caption">Image 1.</div>
+	  </div>
+	  <div class="picture-frame" style="width:20%">
+		<img src="s2.jpg">
+		<div class="picture-caption">Image2</div>
+	  </div>
+	  <div class="picture-frame" style="width:20%">
+		<img src="s3.jpg">
+		<div class="picture-caption">Image 3</div>
+		</div>
+	 <div class="picture-frame" style="width:70%">
+		<img src="s123.jpg">
+		<div class="picture-caption">Image mosaic with second image as root(anchor, unmorphed)</div>
+	  </div>
+	 </div>
+	 
+	<div class="gallery">
+	  <div class="picture-frame" style="width:20%">
+		<img src="b1.jpg">
+		<div class="picture-caption">Image 1.</div>
+	  </div>
+	  <div class="picture-frame" style="width:20%">
+		<img src="b2.jpg">
+		<div class="picture-caption">Image2</div>
+	  </div>
+	  <div class="picture-frame" style="width:20%">
+		<img src="b3.jpg">
+		<div class="picture-caption">Image 3</div>
+	  </div>
+		<div class="picture-frame" style="width:20%">
+		<img src="b4.jpg">
+		<div class="picture-caption">Image 4</div>
+	  </div>
+	 <div class="picture-frame" style="width:70%">
+		<img src="b5432.jpg">
+		<div class="picture-caption">Image mosaic with second image as root(anchor, unmorphed)</div>
+	  </div>
+	 </div>
+	
+	 
+</body>
+
+</html>
