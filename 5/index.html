@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project 5 report</title>
+	<!-- STYLE BELOW IS GENERATED WITH CHATGPT and tweaked by me -->
+    <style>	
+	
+		 body {
+		  background-color: #DDDDDD;
+		  font-family: Arial, sans-serif;
+		  margin: 10%;
+		  padding: 0;
+		  text-align: justify;
+		  justify-content: center;
+		}
+
+		
+		
+		/* General styles for the gallery */
+		.gallery {
+		  display: flex;
+		  flex-wrap: wrap;
+		  justify-content: center;
+		  gap: 1%; /* Space between pictures */
+		  padding: 1%;
+		  background-color: #f4f4f4; /* Background of the gallery */
+		}
+
+		/* Style for individual picture frames */
+		.picture-frame {
+		  position: relative;
+		  width: 20%; /* Width of the frame */
+		  padding: 10px;
+		  background-color: #8AA; /* Background color of the frame */
+		  border: 3px solid #333; /* Border to mimic a frame */
+		  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for depth effect */
+		  transition: transform 0.3s, box-shadow 0.3s; /* Smooth hover effect */
+		}
+
+		.picture-frame img {
+		  width: 100%;
+		  height: auto;
+		  display: block;
+		  border: 1px solid #ddd; /* Inner border for a framed look */
+		  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow on the image */
+		}
+
+		.picture-frame:hover {
+		  transform: scale(1.5); /* Slight zoom on hover */
+		  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Deepen shadow on hover */
+		}
+
+		/* Optional caption below each image */
+		.picture-caption {
+		  text-align: center;
+		  margin-top: 10px;
+		  font-size: 16px;
+		  color: #333;
+		  font-style: italic;
+		}
+    </style>
+</head>
+
+<body>
+	<h1 align="center"> CS180 Project 5</h1>
+	<h2 align="center"> Artem Shumay</h2>
+	
+	<h3> Project tasks:</h3>
+	<p>  A) Generate various images with diffusion models, including visual anagrams and hybrid images. </p>
+	<p>  B) Create our own diffusion model and train it on MNIST dataset.  </p>
+
+	<h3> Part A0: Generating images with given prompt </h3>
+	<p> I chose the seed 508312 for this project. These are some example images generated with given model and num_inference_steps=20: </p>
+	<div class="gallery">
+	  <div class="picture-frame" style="width:27%">
+		<img src="man_hat.png">
+		<div class="picture-caption">"a man wearing a hat"</div>
+	  </div>
+	  <div class="picture-frame" style="width:27%">
+		<img src="oil_paint.png">
+		<div class="picture-caption">"an oil painting of a snowy mountain village"</div>
+	  </div>
+	  <div class="picture-frame" style="width:27%">
+		<img src="rocket_ship.png">
+		<div class="picture-caption">"a rocket ship"</div>
+	  </div>
+	</div>
+	with num_inference_steps=50
+	<div class="gallery">
+	  <div class="picture-frame" style="width:27%">
+		<img src="man_hat50.png">
+		<div class="picture-caption">"a man wearing a hat"</div>
+	  </div>
+	  <div class="picture-frame" style="width:27%">
+		<img src="oil_paint50.png">
+		<div class="picture-caption">"an oil painting of a snowy mountain village"</div>
+	  </div>
+	  <div class="picture-frame" style="width:27%">
+		<img src="rocket_ship50.png">
+		<div class="picture-caption">"a rocket ship"</div>
+	  </div>
+	</div>
+	
+	with num_inference_steps=100
+	<div class="gallery">
+	  <div class="picture-frame" style="width:27%">
+		<img src="man_hat100.png">
+		<div class="picture-caption">"a man wearing a hat"</div>
+	  </div>
+	  <div class="picture-frame" style="width:27%">
+		<img src="oil_paint100.png">
+		<div class="picture-caption">"an oil painting of a snowy mountain village"</div>
+	  </div>
+	  <div class="picture-frame" style="width:27%">
+		<img src="rocket_ship100.png">
+		<div class="picture-caption">"a rocket ship"</div>
+	  </div>
+	</div>
+	
+	<p> As we can see the higher num_inference_steps the better are the generated results. 
+	We can also see a rough correspondence between detailness of a picture and the length of the prompt: the lengthier 
+	the prompt the more detailed is the image. </p>
+	
+	 
+	<h3> Part A1.1: Implementing the Forward Process. </h3>
+	<p> Forward process is adding noise to an image to some level t, I used the following formula to implement it <img src="forward_eq.png">.
+		Here are some results of campanile at different noise levels: </p>
+		
+	<div class="gallery">
+		<div class="picture-frame" style="width:21%">
+		<img src="campanile_fwd_orig.png">
+		<div class="picture-caption">original(t=0)</div>
+	  </div>
+	  <div class="picture-frame" style="width:21%">
+		<img src="campanile_fwd_250.png">
+		<div class="picture-caption">t=250</div>
+	  </div>
+	  <div class="picture-frame" style="width:21%">
+		<img src="campanile_fwd_500.png">
+		<div class="picture-caption">t=500</div>
+	  </div>
+	  <div class="picture-frame" style="width:21%">
+		<img src="campanile_fwd_750.png">
+		<div class="picture-caption">t=750</div>
+	  </div>
+	</div>
+	
+	<h3> Part A1.2: Classical denoising. </h3>
+	<p> I tried to denoise images by applying Gaussian filter, here are some(bad looking) results: </p>
+	<div class="gallery">
+	  <div class="picture-frame" style="width:24%">
+		<img src="campanile_fwd_250.png">
+		<div class="picture-caption">t=250 </div>
+	  </div>
+	  <div class="picture-frame" style="width:24%">
+		<img src="campanile_fwd_500.png">
+		<div class="picture-caption">t=500</div>
+	  </div>
+	  <div class="picture-frame" style="width:24%">
+		<img src="campanile_fwd_750.png">
+		<div class="picture-caption">t=750</div>
+	  </div>
+	  
+	  <div class="picture-frame" style="width:24%">
+		<img src="campanile_fwd_250_gauss.png">
+		<div class="picture-caption">Gaussian denoising at t=250</div>
+	  </div>
+	  <div class="picture-frame" style="width:24%">
+		<img src="campanile_fwd_500_gauss.png">
+		<div class="picture-caption">Gaussian denoising at t=500</div>
+	  </div>
+	  <div class="picture-frame" style="width:24%">
+		<img src="campanile_fwd_750_gauss.png">
+		<div class="picture-caption">Gaussian denoising at t=750</div>
+	  </div>
+	</div>
+	
+	<h3> Part A1.3: One step denoising. </h3>
+	<p> Here we remove the noise predicted by a model from a noisy image to get a decent looking denoised results, to remove 
+	the noise we can rearange the equation above to solve for x_0: </p>
+	
+	<div class="gallery">
+	  <div class="picture-frame" style="width:24%">
+		<img src="os_250.png">
+		<div class="picture-caption">t=250 </div>
+	  </div>
+	  <div class="picture-frame" style="width:24%">
+		<img src="os_500.png">
+		<div class="picture-caption">t=500</div>
+	  </div>
+	  <div class="picture-frame" style="width:24%">
+		<img src="os_750.png">
+		<div class="picture-caption">t=750</div>
+	  </div>
+	  
+	  <div class="picture-frame" style="width:24%">
+		<img src="os_250c.png">
+		<div class="picture-caption">One step denoising at t=250</div>
+	  </div>
+	  <div class="picture-frame" style="width:24%">
+		<img src="os_500c.png">
+		<div class="picture-caption">One step denoising at t=500</div>
+	  </div>
+	  <div class="picture-frame" style="width:24%">
+		<img src="os_750c.png">
+		<div class="picture-caption">One step denoising at t=750</div>
+	  </div>
+	</div>
+	<p> Notice how at large noise levels the Campanile starts to look like a completely different tower. </p>
+	
+	<h3> Part A1.4: Iterative denoising. </h3>
+	<p> By implementing the following equation <img src="iter_eq.png"> we create an iterative step denoising, where x_0 is prediction of a clean image.
+	    Now we can go through our strided_timesteps - list of noise levels t=[990,960,...,30,0] to progressively denoise the image and get clean result:</p>
+	
+	<div class="gallery">
+		<div class="picture-frame" style="width:15%">
+		<img src="it90.png">
+		<div class="picture-caption">iterative denoising at t=90</div>
+	  </div>
+	  <div class="picture-frame" style="width:15%">
+		<img src="it240.png">
+		<div class="picture-caption">iterative denoising at t=240</div>
+	  </div>
+	  <div class="picture-frame" style="width:15%">
+		<img src="it390.png">
+		<div class="picture-caption">iterative denoising at t=390</div>
+	  </div>
+	  <div class="picture-frame" style="width:15%">
+		<img src="it540.png">
+		<div class="picture-caption">iterative denoising at t=540</div>
+	  </div>
+	  <div class="picture-frame" style="width:15%">
+		<img src="it690.png">
+		<div class="picture-caption">iterative denoising at t=690</div>
+	  </div>
+	</div>
+	
+	<div class="gallery">
+		<div class="picture-frame" style="width:21%">
+		<img src="campanile_fwd_orig.png">
+		<div class="picture-caption">Original</div>
+	  </div>
+	  <div class="picture-frame" style="width:21%">
+		<img src="itclean.png">
+		<div class="picture-caption">Iteratively denoised</div>
+	  </div>
+	  <div class="picture-frame" style="width:21%">
+		<img src="iterative_one_step.png">
+		<div class="picture-caption">One step denoised</div>
+	  </div>
+	  <div class="picture-frame" style="width:21%">
+		<img src="iterative_gauss.png">
+		<div class="picture-caption">Gaussian denoised</div>
+	  </div>
+	</div>
+	
+	<p> As we can see iterative denoising produces the cleanest and most detailed result,
+	however it has also created some new data which wasnt in the original image. </p>
+	
+	<h3> Part A1.5: Model sampling. </h3>
+	<p> Now if we denoise not from an image with noise applied to it, but from a pure noise, we can get some arbitrairly generated images like those below: </p>
+	<div class="gallery">
+		<div class="picture-frame" style="width:15%">
+		<img src="hq1.png">
+		<div class="picture-caption">generated image 1</div>
+	  </div>
+	  <div class="picture-frame" style="width:15%">
+		<img src="hq2.png">
+		<div class="picture-caption">generated image 2</div>
+	  </div>
+	  <div class="picture-frame" style="width:15%">
+		<img src="hq3.png">
+		<div class="picture-caption">generated image 3</div>
+	  </div>
+	  <div class="picture-frame" style="width:15%">
+		<img src="hq4.png">
+		<div class="picture-caption">generated image 4</div>
+	  </div>
+	  <div class="picture-frame" style="width:15%">
+		<img src="hq5.png">
+		<div class="picture-caption">generated image 5</div>
+	  </div>
+	</div>
+	
+	<h3> Part A1.6: Classifier free guidance. </h3>
+	<p> Previous results were alright, but we can make them better by reducing our image diversity. In previous part we only had 
+	conditioned noise, now we can mix some unconditional noise into that noise to get better looking results. I used the gamma 7 for 
+	the following equation to generate noise: noise = uncond_noise + gamma * (cond_noise - uncond_noise). Here are the generated images of
+	higher quality: </p>
+	<div class="gallery">
+		<div class="picture-frame" style="width:15%">
+		<img src="cfg1.png">
+		<div class="picture-caption">cfg generated image 1</div>
+	  </div>
+	  <div class="picture-frame" style="width:15%">
+		<img src="cfg2.png">
+		<div class="picture-caption">cfg generated image 2</div>
+	  </div>
+	  <div class="picture-frame" style="width:15%">
+		<img src="cfg6.png">
+		<div class="picture-caption">cfg generated image 3</div>
+	  </div>
+	  <div class="picture-frame" style="width:15%">
+		<img src="cfg4.png">
+		<div class="picture-caption">cfg generated image 4</div>
+	  </div>
+	  <div class="picture-frame" style="width:15%">
+		<img src="cfg5.png">
+		<div class="picture-caption">cfg generated image 5</div>
+	  </div>
+	</div>
+	
+	<h3> Part A1.7.0: Image-to-image Translation. </h3>
+	<p> If we add noise to some original image we can make edits to that existing image by iteratively denoising,
+	the amount of noise will determine the amount of generated information/how far the denoised image is from original. </p>
+	
+	<div class="gallery">
+		<div class="picture-frame" style="width:18%">
+		<img src="img2imgcorr1.png">
+		<div class="picture-caption">denoised with i_start=1</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="img2imgcorr3.png">
+		<div class="picture-caption">denoised with i_start=3</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="img2imgcorr5.png">
+		<div class="picture-caption">denoised with i_start=5</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="img2imgcorr7.png">
+		<div class="picture-caption">denoised with i_start=7</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="img2imgcorr10.png">
+		<div class="picture-caption">denoised with i_start=10</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="img2imgcorr20.png">
+		<div class="picture-caption">denoised with i_start=20</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="campanile_fwd_orig.png">
+		<div class="picture-caption">original</div>
+	  </div>
+	</div>
+	<p> Notice how the image at i_start=1 doesnt match at all, because at i_start=1 it is just denoising nearly fully noise. </p>
+	
+	<p> img2img when run on me: </p>
+	<div class="gallery">
+		<div class="picture-frame" style="width:18%">
+		<img src="img2img_me1.png">
+		<div class="picture-caption">denoised with i_start=1</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="img2img_me3.png">
+		<div class="picture-caption">denoised with i_start=3</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="img2img_me5.png">
+		<div class="picture-caption">denoised with i_start=5</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="img2img_me7.png">
+		<div class="picture-caption">denoised with i_start=7</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="img2img_me10.png">
+		<div class="picture-caption">denoised with i_start=10</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="img2img_me20.png">
+		<div class="picture-caption">denoised with i_start=20</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="me.png">
+		<div class="picture-caption">original</div>
+	  </div>
+	</div>
+	
+	<p> img2img when run on lego figuringe: </p>
+	<div class="gallery">
+		<div class="picture-frame" style="width:18%">
+		<img src="img2img_lego1.png">
+		<div class="picture-caption">denoised with i_start=1</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="img2img_lego3.png">
+		<div class="picture-caption">denoised with i_start=3</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="img2img_lego5.png">
+		<div class="picture-caption">denoised with i_start=5</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="img2img_lego7.png">
+		<div class="picture-caption">denoised with i_start=7</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="img2img_lego10.png">
+		<div class="picture-caption">denoised with i_start=10</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="img2img_lego20.png">
+		<div class="picture-caption">denoised with i_start=20</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="img2img_lego.png">
+		<div class="picture-caption">original</div>
+	  </div>
+	</div>
+	
+	<h3> Part A1.7.1: Hand drawn image to image. </h3>
+	<p> We can provide the sketch of an image and denoise it using cfg, it will create an image roughly trying to match the sketch. </p>
+	
+	<p> img2img when run on image from the web(from research paper): </p>
+	<div class="gallery">
+		<div class="picture-frame" style="width:18%">
+		<img src="draw_web1.png">
+		<div class="picture-caption">denoised with i_start=1</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="draw_web3.png">
+		<div class="picture-caption">denoised with i_start=3</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="draw_web5.png">
+		<div class="picture-caption">denoised with i_start=5</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="draw_web7.png">
+		<div class="picture-caption">denoised with i_start=7</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="draw_web10.png">
+		<div class="picture-caption">denoised with i_start=10</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="draw_web20.png">
+		<div class="picture-caption">denoised with i_start=20</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="draw_web.png">
+		<div class="picture-caption">original</div>
+	  </div>
+	</div>
+	
+	<p> img2img when run on hand drawn image: </p>
+	<div class="gallery">
+		<div class="picture-frame" style="width:18%">
+		<img src="draw_2hand1.png">
+		<div class="picture-caption">iterative denoise with i_start=1</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="draw_2hand3.png">
+		<div class="picture-caption">denoised with i_start=3</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="draw_2hand5.png">
+		<div class="picture-caption">denoised with i_start=5</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="draw_2hand7.png">
+		<div class="picture-caption">denoised with i_start=7</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="draw_2hand10.png">
+		<div class="picture-caption">denoised with i_start=10</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="draw_2hand20.png">
+		<div class="picture-caption">denoised with i_start=20</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="draw_2hand.png">
+		<div class="picture-caption">original</div>
+	  </div>
+	</div>
+
+
+	<p> img2img when run on hand drawn image: </p>
+	<div class="gallery">
+		<div class="picture-frame" style="width:18%">
+		<img src="draw_hand1.png">
+		<div class="picture-caption">denoised with i_start=1</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="draw_hand3.png">
+		<div class="picture-caption">denoised with i_start=3</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="draw_hand5.png">
+		<div class="picture-caption">denoised with i_start=5</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="draw_hand7.png">
+		<div class="picture-caption">denoised with i_start=7</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="draw_hand10.png">
+		<div class="picture-caption">denoised with i_start=10</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="draw_hand20.png">
+		<div class="picture-caption">denoised with i_start=20</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="draw_hand.png">
+		<div class="picture-caption">original</div>
+	  </div>
+	</div>
+	
+	<h3> Part A1.7.2: Inpainting. </h3>
+	<p> Now if we mask out some area of the image and only denoise that, we can practically generate only that part of the image,
+	redraw some part of it. Here are some of my results doing that: </p>
+	
+	<p> Test image: </p>
+	<div class="gallery">
+		<div class="picture-frame" style="width:21%">
+		<img src="cam.png">
+		<div class="picture-caption">Original</div>
+	  </div>
+	  <div class="picture-frame" style="width:21%">
+		<img src="cam_mask.png">
+		<div class="picture-caption">Mask</div>
+	  </div>
+	  <div class="picture-frame" style="width:21%">
+		<img src="cam_redraw.png">
+		<div class="picture-caption">To redraw</div>
+	  </div>
+	  <div class="picture-frame" style="width:21%">
+		<img src="inpaint3.png">
+		<div class="picture-caption">Inpainted</div>
+	  </div>
+	</div>
+	
+	<p> Me(lol): </p>
+		<div class="gallery">
+		<div class="picture-frame" style="width:21%">
+		<img src="me.png">
+		<div class="picture-caption">Original</div>
+	  </div>
+	  <div class="picture-frame" style="width:21%">
+		<img src="me_mask1.png">
+		<div class="picture-caption">Mask</div>
+	  </div>
+	  <div class="picture-frame" style="width:21%">
+		<img src="me_redraw1.png">
+		<div class="picture-caption">To redraw</div>
+	  </div>
+	  <div class="picture-frame" style="width:21%">
+		<img src="me_inpaint.png">
+		<div class="picture-caption">Inpainted</div>
+	  </div>
+	</div>
+	<div class="gallery">
+		<div class="picture-frame" style="width:14%">
+		<img src="me.png">
+		<div class="picture-caption">Original</div>
+	  </div>
+	  <div class="picture-frame" style="width:14%">
+		<img src="me_mask2.png">
+		<div class="picture-caption">Mask</div>
+	  </div>
+	  <div class="picture-frame" style="width:14%">
+		<img src="me_redraw2.png">
+		<div class="picture-caption">To redraw</div>
+	  </div>
+	  <div class="picture-frame" style="width:14%">
+		<img src="me_inpaint2.png">
+		<div class="picture-caption">Inpainted</div>
+	  </div>
+	  	  <div class="picture-frame" style="width:14%">
+		<img src="me_inpaint22.png">
+		<div class="picture-caption">Inpainted2</div>
+	  </div>
+	</div>	
+		
+	<p> Lego figurine: </p>
+	
+		<div class="gallery">
+		<div class="picture-frame" style="width:21%">
+		<img src="lego.png">
+		<div class="picture-caption">Original</div>
+	  </div>
+	  <div class="picture-frame" style="width:21%">
+		<img src="lego_mask.png">
+		<div class="picture-caption">Mask</div>
+	  </div>
+	  <div class="picture-frame" style="width:21%">
+		<img src="lego_replace.png">
+		<div class="picture-caption">To redraw</div>
+	  </div>
+	  <div class="picture-frame" style="width:21%">
+		<img src="inpaint_lego.png">
+		<div class="picture-caption">Inpainted</div>
+	  </div>
+	</div>
+	
+	<h3> Part A1.7.3: Text conditional image to image. </h3>
+	<p> We can generate images starting from some image but conditioned on some prompt, to make the image look somewhat like a prompt: </p>
+	
+	<p> when run on test image with rocket ship prompt: </p>
+	<div class="gallery">
+		<div class="picture-frame" style="width:18%">
+		<img src="textcond1.png">
+		<div class="picture-caption">denoised with i_start=1</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="textcond3.png">
+		<div class="picture-caption">denoised with i_start=3</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="textcond5.png">
+		<div class="picture-caption">denoised with i_start=5</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="textcond7.png">
+		<div class="picture-caption">denoised with i_start=7</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="textcond10.png">
+		<div class="picture-caption">denoised with i_start=10</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="textcond20.png">
+		<div class="picture-caption">denoised with i_start=20</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="cam.png">
+		<div class="picture-caption">original</div>
+	  </div>
+	</div>
+	
+	<p> when run on flower with skull prompt: </p>
+	<div class="gallery">
+		<div class="picture-frame" style="width:18%">
+		<img src="textcond_fl1.png">
+		<div class="picture-caption">denoised with i_start=1</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="textcond_fl3.png">
+		<div class="picture-caption">denoised with i_start=3</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="textcond_fl5.png">
+		<div class="picture-caption">denoised with i_start=5</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="textcond_fl7.png">
+		<div class="picture-caption">denoised with i_start=7</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="textcond_fl10.png">
+		<div class="picture-caption">denoised with i_start=10</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="textcond_fl20.png">
+		<div class="picture-caption">denoised with i_start=20</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="textcond_fl.png">
+		<div class="picture-caption">original</div>
+	  </div>
+	</div>
+	
+	<p> when run on lego figurine with a man in hat prompt: </p>
+	<div class="gallery">
+		<div class="picture-frame" style="width:18%">
+		<img src="text_lego1.png">
+		<div class="picture-caption">denoised with i_start=1</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="text_lego3.png">
+		<div class="picture-caption">denoised with i_start=3</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="text_lego5.png">
+		<div class="picture-caption">denoised with i_start=5</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="text_lego7.png">
+		<div class="picture-caption">denoised with i_start=7</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="text_lego10.png">
+		<div class="picture-caption">denoised with i_start=10</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="text_lego20.png">
+		<div class="picture-caption">denoised with i_start=20</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="text_lego.png">
+		<div class="picture-caption">original</div>
+	  </div>
+	</div>
+	
+	<h3> Part A1.8: Visual anagrams. </h3>
+	<p> We can generate two noises and then combine them in a way to generate visual anagrams. 
+	Here we are generating one noise regularly and another one on the flipped image, we when flip the second noise and 
+	average the two noises. One noise is generating image normally and another generating noise for flipped image,
+	we end up with a nice visual anagram:<p>
+	<p> Anagram of "an oil painting of people around a campfire" and "an oil painting of an old man" </p>
+	<div class="gallery">
+		<div class="picture-frame" style="width:25%">
+		<img src="anagram_good_old_fie_flipped.png">
+		<div class="picture-caption">an oil painting of an old man</div>
+	  </div>
+	  <div class="picture-frame" style="width:25%">
+		<img src="anagram_good_old_fie.png">
+		<div class="picture-caption">an oil painting of people around a campfire</div>
+	  </div>
+	</div>
+	
+	<p> Anagram of "an oil painting of a snowy mountain village" and "an oil painting of an old man" </p>
+	<div class="gallery">
+		<div class="picture-frame" style="width:25%">
+		<img src="anagram_man_mountain.png">
+		<div class="picture-caption">an oil painting of an old man</div>
+	  </div>
+	  <div class="picture-frame" style="width:25%">
+		<img src="anagram_man_mountain_flipped.png">
+		<div class="picture-caption">an oil painting of a snowy mountain village</div>
+	  </div>
+	</div>
+	
+	<p> Anagram of "a photo of a man" and "a photo of a dog" </p>
+	<div class="gallery">
+		<div class="picture-frame" style="width:20%">
+		<img src="anagram_man_dog.png">
+		<div class="picture-caption">a photo of a man</div>
+	  </div>
+	  <div class="picture-frame" style="width:20%">
+		<img src="anagram_man_dog_flipped.png">
+		<div class="picture-caption">a photo of a dog</div>
+	  </div>
+	</div>
+	
+	<h3> Part A1.9: Hybrid images. </h3>
+	<p> By doing the same thing we did last time but running our noises through low and pass filter before combining
+	them we can create hybrid image effect:<p>
+	<p> Hybrid of litograph of a skull and litograph of a waterfall</p>
+	<div class="gallery">
+		<div class="picture-frame" style="width:16%">
+		<img src="hybrid_skull.png">
+		<div class="picture-caption">squint for skull</div>
+	  </div>
+	  
+	  		<div class="picture-frame" style="width:16%">
+		<img src="hybrid_skull2.png">
+		<div class="picture-caption">squint for skull</div>
+	  </div>
+	</div>
+	
+	<p> Hybrid of a man and a dog </p>
+	<div class="gallery">
+		<div class="picture-frame" style="width:16%">
+		<img src="hybrid_man_dog.png">
+		<div class="picture-caption">squint and move away from the screen for a man in a suit</div>
+	  </div>
+	</div>
+	
+	<p> Hybrid of a pencil and a rocket </p>
+	<div class="gallery">
+		<div class="picture-frame" style="width:16%">
+		<img src="hybrid_rocket_pencil.png">
+		<div class="picture-caption">squint for rocket</div>
+	  </div>
+	</div>
+	
+	<p> Hybrid of a dog and hipster barista </p>
+	<div class="gallery">
+		<div class="picture-frame" style="width:16%">
+		<img src="hybrid_dog_hipster.png">
+		<div class="picture-caption">squint for barista</div>
+	  </div>
+	</div>
+	
+	
+	<h2 align=center> Part B: creating our own diffusion model. </h2>
+	<h3> Part B1: Training single step denoiser. </h3>
+	<p> By implementing unet given in the spec we can create a one step denoiser by training it on MNIST dataset, we grab and image from
+	the dataset, noise it to sigma=0.5 level and let the model try to predict that, using l2 norm as our metric.<p>
+	<p> Here is what the noise process for dataset images looks like: </p>
+	
+	<div class="gallery">
+		<div class="picture-frame" style="width:10%">
+		<img src="sig0.png">
+		<div class="picture-caption">sigma=0.0</div>
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="sig2.png">
+		<div class="picture-caption">sigma=0.2</div>
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="sig4.png">
+		<div class="picture-caption">sigma=0.4</div>
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="sig5.png">
+		<div class="picture-caption">sigma=0.5</div>
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="sig6.png">
+		<div class="picture-caption">sigma=0.6</div>
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="sig8.png">
+		<div class="picture-caption">sigma=0.8</div>
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="sig1.png">
+		<div class="picture-caption">sigma=1.0</div>
+	  </div>
+	</div>
+	
+	<p> Now we train on sigma=0.5: </p>
+	
+	<div class="gallery">
+		<div class="picture-frame" style="width:40%">
+		<img src="11loss.png">
+		<div class="picture-caption">Trainig loss</div>
+	  </div>
+	</div>
+	<p> Here is how it performs on in-distrubution tests at 1st epoch</p>
+	<div class="gallery">
+		<div class="picture-frame" style="width:15%">
+		<img src="11orige1.png">
+		<div class="picture-caption">Original</div>
+		</div>
+		
+		<div class="picture-frame" style="width:15%">
+		<img src="11sig5e1.png">
+		<div class="picture-caption">Noisy at sigma=0.5</div>
+		</div>
+		
+		<div class="picture-frame" style="width:15%">
+		<img src="11denoe1.png">
+		<div class="picture-caption">Denoised</div>
+	  </div>
+	</div>
+	
+	<p> Here is how it performs on in-distrubution tests at 5th epoch</p>
+	<div class="gallery">
+		<div class="picture-frame" style="width:15%">
+		<img src="11orige5.png">
+		<div class="picture-caption">Original</div>
+		</div>
+		
+		<div class="picture-frame" style="width:15%">
+		<img src="11sig5e5.png">
+		<div class="picture-caption">Noisy at sigma=0.5</div>
+		</div>
+		
+		<div class="picture-frame" style="width:15%">
+		<img src="11denoe5.png">
+		<div class="picture-caption">Denoised</div>
+	  </div>
+	</div>
+	
+	<p> Here is how it performs on out of distrubution tests at 5th epoch</p>
+	<div class="gallery">
+		<div class="picture-frame" style="width:10%">
+		<img src="11n1.png">
+		<div class="picture-caption">Noisy at sigma=0 </div>
+		</div>
+		
+		<div class="picture-frame" style="width:10%">
+		<img src="11n2.png">
+		<div class="picture-caption">Noisy at sigma=0.2</div>
+		</div>
+		
+		<div class="picture-frame" style="width:10%">
+		<img src="11n4.png">
+		<div class="picture-caption">Noisy at sigma=0.4</div>
+		</div>
+		
+		
+		<div class="picture-frame" style="width:10%">
+		<img src="11n5.png">
+		<div class="picture-caption">Noisy at sigma=0.5</div>
+		</div>
+		
+		<div class="picture-frame" style="width:10%">
+		<img src="11n6.png">
+		<div class="picture-caption">Noisy at sigma=0.6</div>
+		</div>
+		
+		<div class="picture-frame" style="width:10%">
+		<img src="11n8.png">
+		<div class="picture-caption">Noisy at sigma=0.8</div>
+		</div>
+		
+		<div class="picture-frame" style="width:10%">
+		<img src="11n10.png">
+		<div class="picture-caption">Noisy at sigma=1</div>
+		</div>
+		
+		<div class="picture-frame" style="width:10%">
+		<img src="11d1.png">
+		<div class="picture-caption">Denoised at sigma=0.0</div>
+		</div>
+		
+		<div class="picture-frame" style="width:10%">
+		<img src="11d2.png">
+		<div class="picture-caption">Denoised at sigma=0.2</div>
+		</div>
+
+		<div class="picture-frame" style="width:10%">
+		<img src="11d4.png">
+		<div class="picture-caption">Denoised at sigma=0.4</div>
+		</div>
+
+		<div class="picture-frame" style="width:10%">
+		<img src="11d5.png">
+		<div class="picture-caption">Denoised at sigma=0.5</div>
+		</div>
+
+		<div class="picture-frame" style="width:10%">
+		<img src="11d6.png">
+		<div class="picture-caption">Denoised at sigma=0.6</div>
+		</div>
+
+		<div class="picture-frame" style="width:10%">
+		<img src="11d8.png">
+		<div class="picture-caption">Denoised at sigma=0.8</div>
+		</div>
+
+		<div class="picture-frame" style="width:10%">
+		<img src="11d10.png">
+		<div class="picture-caption">Denoised at sigma=1.0</div>
+		</div>
+
+	  </div>
+	</div>
+	
+	<h3> Part B2: Time conditioning. </h3>
+	<p> Now we implement time conditioning, and using equations from part A of the project we train the model to detect noise, we then sample like we did in part A.<p>
+	<p> Here is the loss curve: </p>
+	<div class="gallery">
+		<div class="picture-frame" style="width:40%">
+		<img src="time20_training.png">
+		<div class="picture-caption">Trainig loss</div>
+	  </div>
+	</div>
+	
+	<p> Here are the results after training: </p>
+	<div class="gallery">
+		<div class="picture-frame" style="width:50%">
+		<img src="time5_dirty.png">
+		<div class="picture-caption">Sampled images at epoch 5</div>
+			  </div>
+		<div class="picture-frame" style="width:50%">
+		<img src="time_cond_20.png">
+		<div class="picture-caption">Sampled images at epoch 20</div>
+	  </div>
+	</div>
+	
+	<h3> Part B3: Class conditioning. </h3>
+	<p> We can now pass the digit associated with the image for the model to learn to generate specific digits. 10% of the time
+		we pass an empty conditioning array to make unet work without it being conditioned 
+		as well as make it be able to do classifier free guidance.</p>
+	<p> Here is the loss curve: </p>
+	<div class="gallery">
+		<div class="picture-frame" style="width:40%">
+		<img src="class20_training.png">
+		<div class="picture-caption">Trainig loss</div>
+	  </div>
+	</div>
+	<p> Here are the results after training: </p>
+	<div class="gallery">
+		<div class="picture-frame" style="width:50%">
+		<img src="class5.png">
+		<div class="picture-caption">Sampled images at epoch 5</div>
+			  </div>
+		<div class="picture-frame" style="width:50%">
+		<img src="class20.png">
+		<div class="picture-caption">Sampled images at epoch 20</div>
+	  </div>
+	</div>
+	
+</body>
+
+</html>
