@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project 6 report</title>
+	<!-- STYLE BELOW IS GENERATED WITH CHATGPT and tweaked by me -->
+    <style>	
+	
+		 body {
+		  background-color: #DDDDDD;
+		  font-family: Arial, sans-serif;
+		  margin: 10%;
+		  padding: 0;
+		  text-align: justify;
+		  justify-content: center;
+		}
+
+		
+		
+		/* General styles for the gallery */
+		.gallery {
+		  display: flex;
+		  flex-wrap: wrap;
+		  justify-content: center;
+		  gap: 1%; /* Space between pictures */
+		  padding: 1%;
+		  background-color: #f4f4f4; /* Background of the gallery */
+		}
+
+		/* Style for individual picture frames */
+		.picture-frame {
+		  position: relative;
+		  width: 20%; /* Width of the frame */
+		  padding: 10px;
+		  background-color: #8AA; /* Background color of the frame */
+		  border: 3px solid #333; /* Border to mimic a frame */
+		  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow for depth effect */
+		  transition: transform 0.3s, box-shadow 0.3s; /* Smooth hover effect */
+		}
+
+		.picture-frame img {
+		  width: 100%;
+		  height: auto;
+		  display: block;
+		  border: 1px solid #ddd; /* Inner border for a framed look */
+		  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow on the image */
+		}
+
+		.picture-frame:hover {
+		  transform: scale(1.5); /* Slight zoom on hover */
+		  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Deepen shadow on hover */
+		}
+
+		/* Optional caption below each image */
+		.picture-caption {
+		  text-align: center;
+		  margin-top: 10px;
+		  font-size: 16px;
+		  color: #333;
+		  font-style: italic;
+		}
+    </style>
+</head>
+
+<body>
+	<h1 align="center"> CS180 Final Projects</h1>
+	<h2 align="center"> Artem Shumay</h2>
+	<h1 align="center"> Project 1: Lightfield camera. </h1>
+	<h3> Project tasks:</h3>
+	<p>  A) Depth refocusing. </p>
+	<p>  B) Aperture adjustment.  </p>
+	<h3> Depth refocusing </h3>
+	<p> Each image has associated coordinates with it, camera position. I took image (8, 8) from 17x17 grid as the center and shifted all other images 
+		to that center image to get a focusing effect. shift_yx = depth_factor * (image_yx - center_image_yx).
+		Here are the results that are gotten after varying depth parameter: </p>
+		<div class="gallery">
+		  <div class="picture-frame" style="width:18%">
+			<img src="pl/img_avg_d-0.5.png">
+			<div class="picture-caption">Depth -0.5 </div>
+		  </div>
+		  <div class="picture-frame" style="width:18%">
+			<img src="pl/img_avg_d0.png">
+			<div class="picture-caption">Depth 0 </div>
+		  </div>
+		  <div class="picture-frame" style="width:18%">
+			<img src="pl/img_avg_d0.5.png">
+			<div class="picture-caption">Depth 0.5</div>
+		  </div>
+		</div>
+	<p> Depth gifs -0.7 to 1.3(they might take a while to load): </p>
+			<div class="gallery">
+		  <div class="picture-frame" style="width:35%">
+			<img src="pl/chess_depth.gif">
+			<div class="picture-caption">Chess </div>
+		  </div>
+		  <div class="picture-frame" style="width:35%">
+			<img src="pl/bracelet_depth.gif">
+			<div class="picture-caption">Bracelet </div>
+		  </div>
+		</div>
+	
+	<h3> Aperture adjustment </h3>
+	<p> By selecting a radius within which we choose to average images we can simulate aperture. If sqrt(shift_yx^2) <= a then we add average the image. </p>
+			<div class="gallery">
+		  <div class="picture-frame" style="width:18%">
+			<img src="pl/img_avg_a1.png">
+			<div class="picture-caption">a = 1 </div>
+		  </div>
+		  <div class="picture-frame" style="width:18%">
+			<img src="pl/img_avg_a20.png">
+			<div class="picture-caption">a = 20 </div>
+		  </div>
+		  <div class="picture-frame" style="width:18%">
+			<img src="pl/img_avg_a40.png">
+			<div class="picture-caption">a = 40 </div>
+		  </div>
+		</div>
+	<p> Aperture gifs 0 to 50(they might take a while to load): </p>
+			<div class="gallery">
+		  <div class="picture-frame" style="width:35%">
+			<img src="pl/chess_apeture.gif">
+			<div class="picture-caption">Chess </div>
+		  </div>
+		  <div class="picture-frame" style="width:35%">
+			<img src="pl/bracelet_apeture.gif">
+			<div class="picture-caption">Bracelet </div>
+		  </div>
+		</div>
+	
+	<h3> Summary </h3>
+	<p> This project showed me how you can get great results by collecting a lot of data and operating on it.. </p>
+
+	
+	<h1 align="center"> Project 2: Pyramid-Based Texture Analysis. </h1>
+	<h3> Project tasks:</h3>
+	<p>  A) Create steerable pyramids. </p>
+	<p>  B) Match histograms.  </p>
+	<p>  C) Generate textures similar to reference.  </p>
+	
+	<h3> Introduction </h3>
+	<p> This is a simple approach to construct textures, since all textures have some structure to them we try to catch that structure 
+	with steerable pyramid - a pyramid similar to laplaccian pyramid, but using several bandpass filters. </p>
+	
+	<h3> Creating steerable pyramids </h3>
+	<p> To create steerable pyramids I took filters from pyrtools library </p>
+	<div class="gallery">
+	  <div class="picture-frame" style="width:18%">
+		<img src="pp/filter_0.png">
+		<div class="picture-caption">Filter 1</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="pp/filter_1.png">
+		<div class="picture-caption">Filter 2</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="pp/filter_2.png">
+		<div class="picture-caption">Filter 3</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="pp/filter_3.png">
+		<div class="picture-caption">Filter 4</div>
+	  </div>
+	</div>
+	
+	<p> Here is tower of pisa convolved with these filters. </p>
+	
+	<div class="gallery">
+	  <div class="picture-frame" style="width:35%">
+		<img src="pp/pisa_gray.png">
+		<div class="picture-caption">Original</div>
+	  </div>
+	  <div class="picture-frame" style="width:35%">
+		<img src="pp/pisa_convolved_with0.png">
+		<div class="picture-caption">Convolved with filter 1</div>
+	  </div>
+	  <div class="picture-frame" style="width:25%">
+		<img src="pp/pisa_convolved_with1.png">
+		<div class="picture-caption">Convolved with filter 2</div>
+	  </div>
+	  <div class="picture-frame" style="width:25%">
+		<img src="pp/pisa_convolved_with2.png">
+		<div class="picture-caption">Convolved with filter 3</div>
+	  </div>
+	  <div class="picture-frame" style="width:25%">
+		<img src="pp/pisa_convolved_with3.png">
+	  <div class="picture-caption">Convolved with filter 4</div>
+	  </div>
+	</div>
+	
+	<p> Here is a diagram from the paper which describes how steerable pyramid looks. </p>
+	<img src="pp/diagram_from_paper.png">
+	
+	
+	<p> Steerable pyramid of tower of pisa. </p>
+	<div class="gallery">
+	  <div class="picture-frame" style="width:40%">
+		<img src="pp/pisa_gray.png">
+		<div class="picture-caption">Original(1000x1000)</div>
+	  </div>
+	  <div class="picture-frame" style="width:40%">
+		<img src="pp/pyr_0_bases.png">
+		<div class="picture-caption">Highpass residual(1000x1000) </div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="pp/pyr_1_filter0.png">
+		<div class="picture-caption">Level 1 orientation 1(1000x1000)</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="pp/pyr_1_filter1.png">
+		<div class="picture-caption">Level 1 orientation 2(1000x1000)</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="pp/pyr_1_filter2.png">
+	  <div class="picture-caption">Level 1 orientation 3(1000x1000)</div>
+	  </div>
+	  
+	  <div class="picture-frame" style="width:18%">
+		<img src="pp/pyr_1_filter3.png">
+	  <div class="picture-caption">Level 1 orientation 4(1000x1000)</div>
+	  </div>
+	  
+	  	  <div class="picture-frame" style="width:18%">
+		<img src="pp/pyr_2_filter0.png">
+		<div class="picture-caption">Level 2 orientation 1(500x500)</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="pp/pyr_2_filter1.png">
+		<div class="picture-caption">Level 2 orientation 2(500x500)</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="pp/pyr_2_filter2.png">
+	  <div class="picture-caption">Level 2 orientation 3(500x500)</div>
+	  </div>
+	  
+	  <div class="picture-frame" style="width:18%">
+		<img src="pp/pyr_2_filter3.png">
+	  <div class="picture-caption">Level 2 orientation 4(500x500)</div>
+	  </div>
+	  
+	  	  	  <div class="picture-frame" style="width:18%">
+		<img src="pp/pyr_3_filter0.png">
+		<div class="picture-caption">Level 3 orientation 1(250x250)</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="pp/pyr_3_filter1.png">
+		<div class="picture-caption">Level 3 orientation 2(250x250)</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="pp/pyr_3_filter2.png">
+	  <div class="picture-caption">Level 3 orientation 3(250x250)</div>
+	  </div>
+	  
+	  <div class="picture-frame" style="width:18%">
+		<img src="pp/pyr_3_filter3.png">
+	  <div class="picture-caption">Level 3 orientation 4(250x250)</div>
+	  </div>
+	  
+	  	  	  <div class="picture-frame" style="width:18%">
+		<img src="pp/pyr_4_filter0.png">
+		<div class="picture-caption">Level 4 orientation 1(125x125)</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="pp/pyr_4_filter1.png">
+		<div class="picture-caption">Level 4 orientation 2(125x125)</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="pp/pyr_4_filter2.png">
+	  <div class="picture-caption">Level 4 orientation 3(125x125)</div>
+	  </div>
+	  
+	  <div class="picture-frame" style="width:18%">
+		<img src="pp/pyr_4_filter3.png">
+	  <div class="picture-caption">Level 4 orientation 4(125x125)</div>
+	  </div>
+	  
+	  <div class="picture-frame" style="width:18%">
+		<img src="pp/pyr_5_filter0.png">
+		<div class="picture-caption">Level 5 orientation 1(62x62)</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="pp/pyr_5_filter1.png">
+		<div class="picture-caption">Level 5 orientation 2(62x62)</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="pp/pyr_5_filter2.png">
+	  <div class="picture-caption">Level 5 orientation 3(62x62)</div>
+	  </div>
+	  
+	  <div class="picture-frame" style="width:18%">
+		<img src="pp/pyr_5_filter3.png">
+	  <div class="picture-caption">Level 5 orientation 4(62x62)</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+	  
+		<img src="pp/pyr_6_filter0.png">
+		<div class="picture-caption">Level 6 orientation 1(31x31)</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="pp/pyr_6_filter1.png">
+		<div class="picture-caption">Level 6 orientation 2(31x31)</div>
+	  </div>
+	  <div class="picture-frame" style="width:18%">
+		<img src="pp/pyr_6_filter2.png">
+	  <div class="picture-caption">Level 6 orientation 3(31x31)</div>
+	  </div>
+	  
+	  <div class="picture-frame" style="width:18%">
+		<img src="pp/pyr_6_filter3.png">
+	  <div class="picture-caption">Level 6 orientation 4(31x31)</div>
+	  </div>
+	  
+		<div class="picture-frame" style="width:40%">
+		<img src="pp/pyr_7_bases.png">
+	  <div class="picture-caption">Low pass residual</div>
+	  </div>
+	</div>
+	
+	<p> The pyramid looks correct, however I encountered issues when collapsing it to reconstruct the image. I realised the problem was 
+	in the borders, I used the regular "same" borders of scipy after upscaling(upscaling had to be zero padded, no interpolation). So 
+	I wrote my own padding to reconstruct image with minimal errors. </p>
+	<div class="picture-frame" style="width:90%">
+		<img src="pp/error_demo image.png">
+		<div class="picture-caption">Original</div>
+	  </div>
+	</div>
+	
+	<p> Here are the reconstruction results </p>
+	
+	<div class="gallery">
+	  <div class="picture-frame" style="width:28%">
+		<img src="pp/pisa_gray.png">
+		<div class="picture-caption">Original</div>
+	  </div>
+	  <div class="picture-frame" style="width:28%">
+		<img src="pp/pisa_reconstructed.png">
+		<div class="picture-caption">Reconstructed</div>
+	  </div>
+	  <div class="picture-frame" style="width:28%">
+		<img src="pp/pisa_difference.png">
+		<div class="picture-caption">Difference of reconstructed and original</div>
+	  </div>
+	</div>
+	
+	<h3> Histogram matching </h3>
+	<p> To match histograms I decided not to use CDF matching from first paper, and used the simpler sort matching from the second. I sort the pixels 
+		by value and set the k'th lowest pixels of image 1 to k'th lowest pixel of image 2, im1[idx_of_sorted_im1_pixels] = im2[idx_of_sorted_im2_pixels]. 
+		It behaves as expected and gives good results: </p>
+	
+	<div class="gallery">
+	  <div class="picture-frame" style="width:32%">
+		<img src="pp/double_blue.jpg">
+		<div class="picture-caption">Reference image</div>
+	  </div>
+	  <div class="picture-frame" style="width:32%">
+		<img src="pp/blue_hist.png">
+		<div class="picture-caption">Reference histogram</div>
+	  </div>
+	  <div class="picture-frame" style="width:32%">
+		<img src="pp/noise_unmatched.png">
+		<div class="picture-caption">Noise</div>
+	  </div>
+	  	  <div class="picture-frame" style="width:32%">
+		<img src="pp/noise_before_hist.png">
+		<div class="picture-caption">Noise histogram before matching</div>
+	  </div>
+	  	  <div class="picture-frame" style="width:32%">
+		<img src="pp/noise_matched.png">
+		<div class="picture-caption">Noise after matching</div>
+	  </div>
+	  	  <div class="picture-frame" style="width:32%">
+		<img src="pp/noise_after_hist.png">
+		<div class="picture-caption">Noise histogram after matching (exactly the same because of how I match the histograms)</div>
+	  </div>
+	</div>
+	
+	<h3> Generating textures </h3>
+	<p> Now we can generate noise and histogram match every level of steerable pyramid, upon reconstruction we should get something similar to reference image.
+		We iterate over histogram matching of pyramid to get better results, i.e we generate noise and WHILE NOT HAPPY: create pyramid, match pyramid to reference. 
+		Generated textures with 7 iterations, 4 filters, maximum acceptable depth of pyramid. </p>
+	
+		<div class="gallery">
+	  <div class="picture-frame" style="width:36%">
+		<img src="pp/sand_ref.png">
+		<div class="picture-caption">Reference image</div>
+	  </div>
+	  <div class="picture-frame" style="width:36%">
+		<img src="pp/sand_generated.png">
+		<div class="picture-caption">Synthesized</div>
+	  </div>
+	  
+	  <div class="picture-frame" style="width:36%">
+		<img src="pp/stone_ref.png">
+		<div class="picture-caption">Reference image</div>
+	  </div>
+	  <div class="picture-frame" style="width:36%">
+		<img src="pp/stone_generated.png">
+		<div class="picture-caption">Synthesized</div>
+	  </div>
+	  	  <div class="picture-frame" style="width:36%">
+		<img src="pp/table_ref.png">
+		<div class="picture-caption">Reference image</div>
+	  </div>
+	  <div class="picture-frame" style="width:36%">
+		<img src="pp/table_generated.png">
+		<div class="picture-caption">Synthesized</div>
+	  </div>
+	  
+	  	  <div class="picture-frame" style="width:36%">
+		<img src="pp/grass_ref.png">
+		<div class="picture-caption">Reference image</div>
+	  </div>
+	  <div class="picture-frame" style="width:36%">
+		<img src="pp/grass_generated.png">
+		<div class="picture-caption">Synthesized</div>
+	  </div>
+	  
+	  	  <div class="picture-frame" style="width:36%">
+		<img src="pp/stars_ref.png">
+		<div class="picture-caption">Reference image</div>
+	  </div>
+	  <div class="picture-frame" style="width:36%">
+		<img src="pp/stars_generated.png">
+		<div class="picture-caption">Synthesized</div>
+	  </div>
+	  	  	  <div class="picture-frame" style="width:36%">
+		<img src="pp/double_blue_ref.png">
+		<div class="picture-caption">Reference image</div>
+	  </div>
+	  <div class="picture-frame" style="width:36%">
+		<img src="pp/double_blue_generated.png">
+		<div class="picture-caption">Synthesized</div>
+	  </div>
+	  
+	  	  <div class="picture-frame" style="width:36%">
+		<img src="pp/blue_stars_ref.png">
+		<div class="picture-caption">Reference image</div>
+	  </div>
+	  <div class="picture-frame" style="width:36%">
+		<img src="pp/blue_stars_generated.png">
+		<div class="picture-caption">Synthesized</div>
+	  </div>
+	  
+	  	  	  	  <div class="picture-frame" style="width:25%">
+		<img src="pp/chair_ref.png">
+		<div class="picture-caption">Reference image</div>
+	  </div>
+	  <div class="picture-frame" style="width:25%">
+		<img src="pp/chair_generated.png">
+		<div class="picture-caption">Synthesized</div>
+	  </div>
+	  
+	  	  <div class="picture-frame" style="width:25%">
+		<img src="pp/chair_generated_360.png">
+		<div class="picture-caption">Synthesized with 40 filters</div>
+	  </div>
+	  
+	  	<div class="picture-frame" style="width:25%">
+		<img src="pp/berry_ref.png">
+		<div class="picture-caption">Reference image</div>
+	  </div>
+	  <div class="picture-frame" style="width:25%">
+		<img src="pp/berry_generated.png">
+		<div class="picture-caption">Synthesized</div>
+	  </div>
+	  
+	  <div class="picture-frame" style="width:25%">
+		<img src="pp/berry_generated_360.png">
+		<div class="picture-caption">Synthesized with 360 filters</div>
+	  </div>
+	  
+	  <div class="picture-frame" style="width:36%">
+		<img src="pp/panda_ref.png">
+		<div class="picture-caption">Reference image</div>
+	  </div>
+	  <div class="picture-frame" style="width:36%">
+		<img src="pp/panda_sp3.png">
+		<div class="picture-caption">Synthesized</div>
+	  </div>
+	  
+	  <div class="picture-frame" style="width:36%">
+		<img src="pp/fur_ref.png">
+		<div class="picture-caption">Reference image</div>
+	  </div>
+	  <div class="picture-frame" style="width:36%">
+		<img src="pp/fur_generated.png">
+		<div class="picture-caption">Synthesized</div>
+	  </div>
+	  
+	  <div class="picture-frame" style="width:36%">
+		<img src="pp/tiger_ref.png">
+		<div class="picture-caption">Reference image</div>
+	  </div>
+	  <div class="picture-frame" style="width:36%">
+		<img src="pp/tiger_generated.png">
+		<div class="picture-caption">Synthesized</div>
+	  </div>
+	  
+	  <div class="picture-frame" style="width:36%">
+		<img src="pp/haas_ref.png">
+		<div class="picture-caption">Reference image</div>
+	  </div>
+	  <div class="picture-frame" style="width:36%">
+		<img src="pp/haas_sp3.png">
+		<div class="picture-caption">Synthesized</div>
+	  </div>
+	  
+	  <div class="picture-frame" style="width:36%">
+		<img src="pp/leg_ref.png">
+		<div class="picture-caption">Reference image</div>
+	  </div>
+	  <div class="picture-frame" style="width:36%">
+		<img src="pp/leg_generated.png">
+		<div class="picture-caption">Synthesized</div>
+	  </div>
+	  
+	  <div class="picture-frame" style="width:36%">
+		<img src="pp/pcb_ref.png">
+		<div class="picture-caption">Reference image</div>
+	  </div>
+	  <div class="picture-frame" style="width:36%">
+		<img src="pp/pcb_generated.png">
+		<div class="picture-caption">Synthesized</div>
+	  </div>
+	</div>
+	
+		<p> From all the results we can see that it works relatively well, especially if you squeeze your eyes or look from far away,
+		this means that even though we create steerable pyraimd we cant catch all the higher frequency features, low frequency features are captured, but 
+		higher frequency structure is not captured. Even when we did 360 filters it only caught low frequency features. </p>
+	
+	<h3> BELLS AND WHISTLES:Tuning hyperparameters </h3>
+	<p> We could change number of filters(orientations) in our steerable pyramid, depth of the pyramid, and number of orientations. </p>
+	<p> Tuning number of iterations, 0 iterations means we dont deconstruct out noise into pyramid </p>
+	
+
+	<div class="gallery">
+	  <div class="picture-frame" style="width:10%">
+		<img src="pp/sand_ref.png">
+		<div class="picture-caption">Reference image</div>
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="pp/sand_0iter_5height_sp3.png">
+		<div class="picture-caption">0 iter</div>
+	  </div>
+	  <div class="picture-frame" style="width:10%">
+		<img src="pp/sand_1iter_5height_sp3.png">
+		<div class="picture-caption">1 iter</div>
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="pp/sand_2iter_5height_sp3.png">
+		<div class="picture-caption">2 iters</div>
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="pp/sand_3iter_5height_sp3.png">
+		<div class="picture-caption">3 iters</div>
+	  </div>
+	  	  <div class="picture-frame" style="width:10%">
+		<img src="pp/sand_4iter_5height_sp3.png">
+		<div class="picture-caption">4 iters</div>
+	  </div>
+	  
+	  	  	  <div class="picture-frame" style="width:10%">
+		<img src="pp/sand_5iter_5height_sp3.png">
+		<div class="picture-caption">5 iters</div>
+	  </div>
+	  
+	  
+	  	  	  <div class="picture-frame" style="width:10%">
+		<img src="pp/sand_6iter_5height_sp3.png">
+		<div class="picture-caption">6 iters</div>
+	  </div>
+	  
+	  	  	  <div class="picture-frame" style="width:10%">
+		<img src="pp/sand_7iter_5height_sp3.png">
+		<div class="picture-caption">7 iters</div>
+	  </div>
+	  
+	  	  	  <div class="picture-frame" style="width:10%">
+		<img src="pp/sand_8iter_5height_sp3.png">
+		<div class="picture-caption">8 iters</div>
+	  </div>
+	  
+	  	  	  <div class="picture-frame" style="width:10%">
+		<img src="pp/sand_9iter_5height_sp3.png">
+		<div class="picture-caption">9 iters</div>
+	  </div>
+	  
+	  	  	  <div class="picture-frame" style="width:10%">
+		<img src="pp/sand_10iter_5height_sp3.png">
+		<div class="picture-caption">10 iters</div>
+	  </div>
+	  
+	  	  	  <div class="picture-frame" style="width:10%">
+		<img src="pp/sand_11iter_5height_sp3.png">
+		<div class="picture-caption">11 iters</div>
+	  </div>
+	  
+	  	  	  <div class="picture-frame" style="width:10%">
+		<img src="pp/sand_12iter_5height_sp3.png">
+		<div class="picture-caption">12 iters</div>
+	  </div>
+	  
+	  <div class="picture-frame" style="width:10%">
+		<img src="pp/sand_13iter_5height_sp3.png">
+		<div class="picture-caption">13 iters</div>
+	  </div>
+	  
+	  <div class="picture-frame" style="width:10%">
+		<img src="pp/sand_14iter_5height_sp3.png">
+		<div class="picture-caption">14 iters</div>
+	  </div>
+	  
+	  <div class="picture-frame" style="width:10%">
+		<img src="pp/sand_15iter_5height_sp3.png">
+		<div class="picture-caption">15 iters</div>
+	  </div>
+	  
+	  <div class="picture-frame" style="width:10%">
+		<img src="pp/sand_16iter_5height_sp3.png">
+		<div class="picture-caption">16 iters</div>
+	  </div>
+	  
+	  
+	  <div class="picture-frame" style="width:10%">
+		<img src="pp/sand_17iter_5height_sp3.png">
+		<div class="picture-caption">17 iters</div>
+	  </div>
+	  
+	  <div class="picture-frame" style="width:10%">
+		<img src="pp/sand_18iter_5height_sp3.png">
+		<div class="picture-caption">18 iters</div>
+	  </div>
+	  
+	  <div class="picture-frame" style="width:10%">
+		<img src="pp/sand_19iter_5height_sp3.png">
+		<div class="picture-caption">19 iters</div>
+	  </div>
+	  <p> As we can see we need several iterations to capture the underlying structure, however number of iterations has diminishing returns. I chose 7 for
+	  my images since that seems to be safe value</p>
+	  </div>
+	  
+	 <p> Tuning pyramid depth </p>
+
+	<div class="gallery">
+	  <div class="picture-frame" style=	"width:12%">
+		<img src="pp/sand_ref.png">
+		<div class="picture-caption">Reference image</div>
+	  </div>
+	  <div class="picture-frame" style="width:12%">
+		<img src="pp/sand_7iter_1height_sp3.png">
+		<div class="picture-caption">Height 1</div>
+	  </div>
+	  <div class="picture-frame" style="width:12%">
+		<img src="pp/sand_7iter_2height_sp3.png">
+		<div class="picture-caption">Height 2</div>
+	  </div>
+	  	  <div class="picture-frame" style="width:12%">
+		<img src="pp/sand_7iter_3height_sp3.png">
+		<div class="picture-caption">Height 3</div>
+	  </div>
+	  	  <div class="picture-frame" style="width:12%">
+		<img src="pp/sand_7iter_4height_sp3.png">
+		<div class="picture-caption">Height 4</div>
+	  </div>
+	  	  <div class="picture-frame" style="width:12%">
+		<img src="pp/sand_7iter_5height_sp3.png">
+		<div class="picture-caption">Height 5</div>
+	  </div>
+		  <p> Here everything is simple: deeper the pyramid, better the results</p>
+		  	</div>
+			
+	<p> Tuning number of filters </p>
+
+	<div class="gallery">
+	  <div class="picture-frame" style=	"width:12%">
+		<img src="pp/sand_ref.png">
+		<div class="picture-caption">Reference image</div>
+	  </div>
+	  <div class="picture-frame" style="width:12%">
+		<img src="pp/sand_7iter_5height_sp3_1filts.png">
+		<div class="picture-caption">1 Filter</div>
+	  </div>
+	  <div class="picture-frame" style="width:12%">
+		<img src="pp/sand_7iter_5height_sp3_2filts.png">
+		<div class="picture-caption">2 Filters</div>
+	  </div>
+	  	  <div class="picture-frame" style="width:12%">
+		<img src="pp/sand_7iter_5height_sp3_3filts.png">
+		<div class="picture-caption">3 Filters</div>
+	  </div>
+	  	  <div class="picture-frame" style="width:12%">
+		<img src="pp/sand_7iter_5height_sp3_4filts.png">
+		<div class="picture-caption">4 Filters</div>
+	  </div>
+	  	  <div class="picture-frame" style="width:12%">
+		<img src="pp/sand_7iter_5height_sp3_5filts.png">
+		<div class="picture-caption">5 Filters</div>
+			  </div>
+			  	  <div class="picture-frame" style="width:12%">
+		<img src="pp/sand_7iter_5height_sp3_6filts.png">
+		<div class="picture-caption">6 Filters</div>
+			  </div>
+		
+			  	  <div class="picture-frame" style="width:12%">
+		<img src="pp/sand_7iter_5height_sp3_7filts.png">
+		<div class="picture-caption">7 Filters</div>
+			  </div>
+		
+			  	  <div class="picture-frame" style="width:12%">
+		<img src="pp/sand_7iter_5height_sp3_8filts.png">
+		<div class="picture-caption">8 Filters</div>
+			  </div>
+		
+			  	  <div class="picture-frame" style="width:12%">
+		<img src="pp/sand_7iter_5height_sp3_9filts.png">
+		<div class="picture-caption">9 Filters</div>
+			  </div>
+		
+			  	  <div class="picture-frame" style="width:12%">
+		<img src="pp/sand_7iter_5height_sp3_360filts.png">
+		<div class="picture-caption">360 Filters</div>
+			  </div>
+		  <p> Here its harder to interpret the results, first 4 filters used are vertical, 2 diagonal ones, horizontal, so results make sense up to 4. 
+		  However next filters are added on random, and seem to degrade image quality by picking up on some structure not seen by eye. Maybe its because I 
+		  uniformly add random steered filters, but each added filter should be balanced with symmetrical one. But as we can see the difference between 360 and 4 filters
+is not high, indicating that 4 filters catch most of the structure in this image(since image is mostly diagonal)		  </p>
+		  	</div>
+	  
+
+</body>
+
+</html>
