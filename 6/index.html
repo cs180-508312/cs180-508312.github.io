@@ -378,7 +378,7 @@
 	<h3> Generating textures </h3>
 	<p> Now we can generate noise and histogram match every level of steerable pyramid, upon reconstruction we should get something similar to reference image.
 		We iterate over histogram matching of pyramid to get better results, i.e we generate noise and WHILE NOT HAPPY: create pyramid, match pyramid to reference. 
-		Generated textures with 7 iterations, 4 filters, maximum acceptable depth of pyramid. </p>
+		Generated textures with 7 iterations, 4 filters, maximum acceptable depth of pyramid. To get colors working I had to convert to PCA color space, that decorrelated the colors. </p>
 	
 		<div class="gallery">
 	  <div class="picture-frame" style="width:36%">
